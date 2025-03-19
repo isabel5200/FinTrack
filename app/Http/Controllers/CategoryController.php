@@ -12,6 +12,9 @@ class CategoryController extends Controller
         $this->authorizeResource(Category::class, 'category');
     }
 
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         //
