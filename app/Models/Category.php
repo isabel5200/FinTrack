@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
+use App\Models\Budget;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Category extends Model
 {
@@ -14,4 +17,22 @@ class Category extends Model
         'name',
         'type',
     ];
+
+    // A category belongs to a user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // A category has many transactions
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    // A category has many budgets
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class);
+    }
 }

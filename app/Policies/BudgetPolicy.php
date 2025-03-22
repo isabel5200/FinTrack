@@ -6,7 +6,7 @@ use App\Models\Budget;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class Budget
+class BudgetPolicty
 {
     public function viewAny(User $user): bool
     {
