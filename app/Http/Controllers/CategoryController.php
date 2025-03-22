@@ -20,7 +20,8 @@ class CategoryController extends Controller
             return response()->json($categories);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => 'An error occurred while fetching categories',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

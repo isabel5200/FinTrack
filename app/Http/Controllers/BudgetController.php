@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Budget;
 use Illuminate\Http\Request;
 
 class BudgetController extends Controller
@@ -11,7 +12,18 @@ class BudgetController extends Controller
      */
     public function index()
     {
-        //
+        $this->authorize('viewAny', Budget::class);
+
+        try {
+            $budgets = Budget::where('user_id', auth()->user()->id)->get();
+
+            return response()->json($budgets);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching budgets',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

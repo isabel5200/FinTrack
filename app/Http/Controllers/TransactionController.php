@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -11,7 +12,18 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        //
+        $this->authorize('viewAny', Transaction::class);
+
+        try {
+            $transactions = Transaction::where('user_id', auth()->user()->id)->get();
+
+            return response()->json($transactions);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching transactions',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
