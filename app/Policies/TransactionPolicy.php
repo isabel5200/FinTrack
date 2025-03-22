@@ -6,7 +6,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class Transaction
+class TransactionPolicy
 {
     public function viewAny(User $user): bool
     {

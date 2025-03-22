@@ -3,9 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Budget;
+use App\Models\Category;
+use App\Models\Transaction;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
@@ -44,5 +47,23 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // A user has many categories
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    // A user has many transactions
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    // A user has many budgets
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class);
     }
 }
