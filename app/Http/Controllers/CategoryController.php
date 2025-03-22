@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
@@ -15,7 +17,8 @@ class CategoryController extends Controller
         $this->authorize('viewAny', Category::class);
 
         try {
-            $categories = Category::where('user_id', auth()->user()->id)->get();
+            $categories = Category::where('user_id', Auth::user()->id)->get();
+            $categories = CategoryResource::collection($categories);
 
             return response()->json($categories);
         } catch (\Exception $e) {

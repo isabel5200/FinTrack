@@ -10,6 +10,7 @@ class TransactionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'amount' => $this->amount,
             'type' => $this->type,
             'category' => $this->category_name,
