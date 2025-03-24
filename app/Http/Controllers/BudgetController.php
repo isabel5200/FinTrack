@@ -29,7 +29,9 @@ class BudgetController extends Controller
 
             $budgets = BudgetResource::collection($budgets);
 
-            return response()->json($budgets);
+            return inertia('Budgets/Index', [
+                'budgets' => $budgets
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'An error occurred while fetching budgets',

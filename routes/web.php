@@ -22,9 +22,14 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/transactions', [TransactionController::class, 'index']);
-    Route::get('/budgets', [BudgetController::class, 'index']);
+    // Categories
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+
+    // Transactions
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+
+    // Budgets
+    Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
 });
 
 Route::middleware('auth')->group(function () {

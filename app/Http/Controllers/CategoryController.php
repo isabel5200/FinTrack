@@ -20,7 +20,9 @@ class CategoryController extends Controller
             $categories = Category::where('user_id', Auth::user()->id)->get();
             $categories = CategoryResource::collection($categories);
 
-            return response()->json($categories);
+            return inertia('Categories/Index', [
+                'categories' => $categories
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'An error occurred while fetching categories',

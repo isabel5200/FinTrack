@@ -31,7 +31,9 @@ class TransactionController extends Controller
 
             $transactions = TransactionResource::collection($transactions);
 
-            return response()->json($transactions);
+            return inertia('Transactions/Index', [
+                'transactions' => $transactions
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'An error occurred while fetching transactions',
