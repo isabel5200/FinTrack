@@ -82,10 +82,11 @@ initFilters();
 
 <template>
     <!-- DataTable -->
-    <DataTable v-model:filters="filters" removableSort paginator tableStyle="min-width: 50rem"
+    <DataTable removableSort paginator tableStyle="min-width: 50rem"
         paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-        currentPageReportTemplate="{first} of {last} of {totalRecords}" :rows="rows" :rowsPerPageOptions="[5, 10, 20]"
-        :totalRecords="totalRecords" :lazy="lazy" :value="data" class="text-nowrap" @page="handlePage">
+        currentPageReportTemplate="{first} of {last} of {totalRecords}" v-model:filters="filters" :rows="rows"
+        :rowsPerPageOptions="[5, 10, 20]" :totalRecords="totalRecords" :lazy="lazy" :value="data" class="text-nowrap"
+        @page="handlePage">
         <!-- Table header -->
         <template #header>
             <!-- Search -->
@@ -101,15 +102,16 @@ initFilters();
             </div>
         </template>
         <!-- Columns -->
-        <Column v-for="col of columns" sortable :key="col.field" :field="col.field" :header="col.header">
+        <Column v-for="col of columns" sortable :key="col.field" :field="col.field" :header="col.header"
+            :hidden="['id'].includes(col.field)">
         </Column>
         <!-- Actions -->
         <Column header="Actions">
             <template #body="slotProps">
                 <div class="flex gap-2 items-center">
                     <!-- Edit button -->
-                    <Button raised rounded v-tooltip.top="'Edit'" type="button" icon="fa-solid fa-pencil" severity="info"
-                        size="small" @click="handleEdit(slotProps.data)" />
+                    <Button raised rounded v-tooltip.top="'Edit'" type="button" icon="fa-solid fa-pencil"
+                        severity="info" size="small" @click="handleEdit(slotProps.data)" />
                     <!-- Delete button -->
                     <Button raised rounded v-tooltip.top="'Delete'" type="button" icon="fa-solid fa-trash-can"
                         severity="danger" size="small" @click="handleDelete(slotProps.data)" />

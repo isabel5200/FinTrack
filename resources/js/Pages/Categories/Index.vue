@@ -14,6 +14,11 @@ const props = defineProps({
 });
 
 // Variables
+const columns = [
+    { field: 'id', header: 'ID' },
+    { field: 'name', header: 'Name' },
+    { field: 'type', header: 'Type' }
+];
 
 // Methods
 
@@ -45,9 +50,12 @@ onMounted(() => {
                     </div> -->
                     <!-- Card -->
                     <Card>
+                        <!-- Title -->
                         <template #title>Categories</template>
+                        <!-- Content -->
                         <template #content>
-                            <DataTable :data="props.categories"></DataTable>
+                            <!-- DataTable -->
+                            <DataTable :columns="columns" :data="props.categories"></DataTable>
                         </template>
                     </Card>
                 </div>
