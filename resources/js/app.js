@@ -14,6 +14,7 @@ import Material from '@primeuix/themes/material';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from "primevue/button";
+import ToastService from 'primevue/toastservice';
 import Tooltip from 'primevue/tooltip';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -39,6 +40,7 @@ createInertiaApp({
                     }
                 },
             })
+            .use(ToastService)
             .component('DataTable', DataTable)
             .component('Column', Column)
             .component('Button', Button)

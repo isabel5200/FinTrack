@@ -1,17 +1,52 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref, watchEffect } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import Toast from 'primevue/toast';
 import { Link } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
+import { useToast } from 'primevue/usetoast';
 
 const showingNavigationDropdown = ref(false);
+const toast = useToast();
+
+// Display flash messages
+watchEffect(() => {
+    let flash = usePage().props.flash;
+
+    if (flash.success) {
+        toast.add({ severity: 'success', summary: 'Success', detail: flash.success, life: 5000 });
+
+        usePage().props.flash.success = null;
+    }
+    if (flash.error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: flash.error, life: 5000 });
+
+        usePage().props.flash.error = null;
+    }
+    if (flash.warning) {
+        toast.add({ severity: 'warn', summary: 'Warning', detail: flash.warning, life: 5000 });
+
+        usePage().props.flash.warning = null;
+    }
+    if (flash.info) {
+        toast.add({ severity: 'info', summary: 'Information', detail: flash.info, life: 5000 });
+
+        usePage().props.flash.info = null;
+    }
+})
+
+onMounted(() => {
+    console.log(usePage().props);
+});
 </script>
 
 <template>
     <div>
+        <Toast />
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
                 <!-- Primary Navigation Menu -->
@@ -34,10 +69,12 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('budgets.index')" :active="route().current('budgets.index')">
                                     Budgets
                                 </NavLink>
-                                <NavLink :href="route('categories.index')" :active="route().current('categories.index')">
+                                <NavLink :href="route('categories.index')"
+                                    :active="route().current('categories.index')">
                                     Categories
                                 </NavLink>
-                                <NavLink :href="route('transactions.index')" :active="route().current('transactions.index')">
+                                <NavLink :href="route('transactions.index')"
+                                    :active="route().current('transactions.index')">
                                     Transactions
                                 </NavLink>
                             </div>
