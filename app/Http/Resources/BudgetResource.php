@@ -12,8 +12,8 @@ class BudgetResource extends JsonResource
         return [
             'id' => $this->id,
             'category' => $this->category_name,
-            'max_amount' => $this->max_amount,
-            'duration' => $this->duration,
+            'max_amount' => '$' . number_format($this->max_amount, 2),
+            'duration' => ucfirst($this->duration),
         ];
     }
 }

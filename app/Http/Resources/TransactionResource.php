@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -11,11 +12,11 @@ class TransactionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'amount' => $this->amount,
-            'type' => $this->type,
+            'amount' => '$' . number_format($this->amount, 2),
+            'type' => ucfirst($this->type),
             'category' => $this->category_name,
             'description' => $this->description,
-            'date' => $this->date,
+            'date' => Carbon::parse($this->date)->format('m-d-Y'),
         ];
     }
 }

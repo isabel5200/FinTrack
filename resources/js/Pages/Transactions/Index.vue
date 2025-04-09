@@ -1,7 +1,9 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import Card from 'primevue/card';
+import DataTable from '@/Components/DataTable.vue';
 
 const props = defineProps({
     transactions: {
@@ -9,6 +11,15 @@ const props = defineProps({
         required: true
     }
 });
+
+const columns = [
+    { field: 'id', header: 'ID' },
+    { field: 'amount', header: 'Amount' },
+    { field: 'type', header: 'Type' },
+    { field: 'category', header: 'Category' },
+    { field: 'description', header: 'Description' },
+    { field: 'date', header: 'Date' },
+];
 
 onMounted(() => {
     console.log(props.transactions);
@@ -29,13 +40,12 @@ onMounted(() => {
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
-                        Your transactions
-                    </div>
-
-                    <div class="card flex justify-center">
-                        <Button label="Add" />
-                    </div>
+                    <Card>
+                        <template #title>Transactions</template>
+                        <template #content>
+                            <DataTable :columns="columns" :data="props.transactions"></DataTable>
+                        </template>
+                    </Card>
                 </div>
             </div>
         </div>

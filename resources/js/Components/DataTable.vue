@@ -76,6 +76,15 @@ const handleDelete = (record) => {
     }
 };
 
+// Truncate description
+const truncateDescription = (description) => {
+    if (description.length > 50) {
+        return description.substring(0, 50) + '...';
+    }
+
+    return description;
+};
+
 // Initialize filters
 initFilters();
 </script>
@@ -104,6 +113,15 @@ initFilters();
         <!-- Columns -->
         <Column v-for="col of columns" sortable :key="col.field" :field="col.field" :header="col.header"
             :hidden="['id'].includes(col.field)">
+            <template #body="slotProps">
+                <!-- If description exists -->
+                <span v-if="col.field === 'description'">
+                    {{ truncateDescription(slotProps.data.description) }}
+                </span>
+                <span v-else>
+                    {{ slotProps.data[col.field] }}
+                </span>
+            </template>
         </Column>
         <!-- Actions -->
         <Column header="Actions">
