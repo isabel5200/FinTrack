@@ -98,8 +98,10 @@ initFilters();
         @page="handlePage">
         <!-- Table header -->
         <template #header>
+            <!-- Add button -->
+            <Button raised rounded label="New" type="button" icon="fa-solid fa-circle-plus" severity="success" />
             <!-- Search -->
-            <div class="flex justify-end">
+            <div class="flex justify-end mt-3">
                 <IconField>
                     <!-- Icon -->
                     <InputIcon>
