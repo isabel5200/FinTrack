@@ -33,6 +33,10 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    onCreate: {
+        type: Function,
+        default: null
+    },
     onEdit: {
         type: Function,
         default: null
@@ -59,6 +63,13 @@ const initFilters = () => {
 const handlePage = (e) => {
     if (props.lazy && props.onPage) {
         props.onPage(e);
+    }
+};
+
+// Handle create
+const handleCreate = () => {
+    if (props.onCreate) {
+        props.onCreate();
     }
 };
 
@@ -99,7 +110,7 @@ initFilters();
         <!-- Table header -->
         <template #header>
             <!-- Add button -->
-            <Button raised rounded label="New" type="button" icon="fa-solid fa-circle-plus" severity="success" />
+            <Button raised rounded label="New" type="button" icon="fa-solid fa-circle-plus" severity="success" @click="handleCreate" />
             <!-- Search -->
             <div class="flex justify-end mt-3">
                 <IconField>

@@ -23,7 +23,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     // Categories
-    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::resource('/categories', CategoryController::class);
 
     // Transactions
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');

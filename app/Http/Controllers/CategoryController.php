@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
@@ -38,7 +40,7 @@ class CategoryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(CategoryRequest $request)
     {
         //
     }
@@ -46,9 +48,21 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        //
+        try {
+            $data = $request->validated();
+            $data['user_id'] = Auth::user()->id;
+
+            Category::create($data);
+
+            session()->flash('success', 'Category created successfully');
+        } catch (\Exception $e) {
+            Log::error('Error creating category: ' . $e->getMessage());
+            session()->flash('error', 'An error occurred while creating the category');
+        }
+
+        return redirect()->back();
     }
 
     /**
