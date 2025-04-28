@@ -21,24 +21,23 @@ const props = defineProps({
 // Variables
 const isCreateModalOpen = ref(false);
 const types = [
-    { value: 'income', label: 'Income' },
     { value: 'expense', label: 'Expense' },
+    { value: 'income', label: 'Income' },
 ];
 const columns = [
     { field: 'id', header: 'ID' },
     { field: 'name', header: 'Name' },
     { field: 'type', header: 'Type' }
 ];
-
-// Methods
-
-// Form methods
 const form = useForm({
     id: null,
     name: '',
     type: ''
 });
 
+// Methods
+
+// Form methods
 const resetForm = () => {
     form.reset();
 };
@@ -64,7 +63,6 @@ const createCategory = () => {
 
 // Vue methods
 onMounted(() => {
-    console.log(props.categories);
 });
 </script>
 

@@ -14,9 +14,9 @@ class BudgetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'required|integer|exists:categories,id',
-            'max_amount' => 'required|numeric',
-            'duration' => 'required|string|in:day,week,month,year',
+            'category' => 'required|integer|exists:categories,id',
+            'max_amount' => 'required|numeric|min:0',
+            'frequency' => 'required|string|in:daily,weekly,monthly',
         ];
     }
 }

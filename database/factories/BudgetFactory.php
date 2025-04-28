@@ -12,7 +12,7 @@ class BudgetFactory extends Factory
             'user_id' => fake()->numberBetween(1, 20),
             'category_id' => fake()->numberBetween(1, 20),
             'max_amount' => fake()->numberBetween(100, 1000),
-            'duration' => fake()->randomElement(['monthly', 'weekly', 'daily']),
+            'frequency' => fake()->randomElement(['monthly', 'weekly', 'daily']),
         ];
     }
 }

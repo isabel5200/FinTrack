@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
@@ -58,7 +58,7 @@ class CategoryController extends Controller
 
             session()->flash('success', 'Category created successfully');
         } catch (\Exception $e) {
-            Log::error('Error creating category: ' . $e->getMessage());
+            // Log::error('Error creating category: ' . $e->getMessage());
             session()->flash('error', 'An error occurred while creating the category');
         }
 
@@ -95,5 +95,22 @@ class CategoryController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function getCategories()
+    {
+        try {
+            $categories = Category::where('user_id', Auth::user()->id)->orderBy('name', 'ASC')->get();
+            $categories = CategoryResource::collection($categories);
+
+            return response()->json([
+                'categories' => $categories,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching categories',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

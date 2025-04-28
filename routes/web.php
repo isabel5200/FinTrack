@@ -24,12 +24,13 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     // Categories
     Route::resource('/categories', CategoryController::class);
+    Route::get('/get-categories', [CategoryController::class, 'getCategories'])->name('categories.getCategories');
 
     // Transactions
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
 
     // Budgets
-    Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::resource('/budgets', BudgetController::class);
 });
 
 Route::middleware('auth')->group(function () {

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\BudgetResource;
 use App\Models\Budget;
 use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Log;
+use App\Http\Requests\BudgetRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\BudgetResource;
 
 class BudgetController extends Controller
 {
@@ -20,7 +22,7 @@ class BudgetController extends Controller
                     'budgets.id',
                     'categories.name as category_name',
                     'budgets.max_amount',
-                    'budgets.duration'
+                    'budgets.frequency'
                 )
                 ->get();
 
@@ -42,9 +44,21 @@ class BudgetController extends Controller
         //
     }
 
-    public function store(Request $request)
+    public function store(BudgetRequest $request)
     {
-        //
+        try {
+            $data = $request->validated();
+            $data['category_id'] = $data['category'];
+            $data['user_id'] = Auth::user()->id;
+
+            Budget::create($data);
+
+            session()->flash('success', 'Budget created successfully');
+        } catch (\Exception $e) {
+            session()->flash('error', 'An error occurred while creating the budget');
+        }
+
+        return redirect()->back();
     }
 
     public function show(string $id)

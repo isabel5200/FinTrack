@@ -38,10 +38,6 @@ watchEffect(() => {
         usePage().props.flash.info = null;
     }
 })
-
-onMounted(() => {
-    console.log(usePage().props);
-});
 </script>
 
 <template>

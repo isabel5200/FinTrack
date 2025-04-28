@@ -15,7 +15,7 @@ class Budget extends Model
         'user_id',
         'category_id',
         'max_amount',
-        'duration',
+        'frequency',
         'end_date',
     ];
 

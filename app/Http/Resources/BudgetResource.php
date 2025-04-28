@@ -13,7 +13,7 @@ class BudgetResource extends JsonResource
             'id' => $this->id,
             'category' => $this->category_name,
             'max_amount' => '$' . number_format($this->max_amount, 2),
-            'duration' => ucfirst($this->duration),
+            'frequency' => ucfirst($this->frequency),
         ];
     }
 }
