@@ -106,6 +106,9 @@ onMounted(() => {
                     <InputLabel for="category" value="Category" />
                     <Select id="category" v-model="form.category" :options="categories" optionValue="id"
                         optionLabel="label" placeholder="Select a category" class="mt-1 block w-full" appendTo="self" />
+                    <small class="text-sm text-gray-500 dark:text-gray-400">
+                        Showing categories with type "Expense" only.
+                    </small>
                     <InputError :message="form.errors.category" class="mt-2" />
                     <InputLabel for="max_amount" value="Max amount" class="mt-3" />
                     <InputText id="max_amount" v-model="form.max_amount" type="number" placeholder="Enter a max amount"

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BudgetRequest extends FormRequest
@@ -14,7 +16,16 @@ class BudgetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category' => 'required|integer|exists:categories,id',
+            'category' => [
+                'required',
+                'integer',
+                'exists:categories,id',
+                Rule::unique('budgets', 'category_id')->where(function ($query) {
+                    return $query->where('user_id', Auth::user()->id)
+                        ->where('category_id', $this->input('category'))
+                        ->where('frequency', $this->input('frequency'));
+                }),
+            ],
             'max_amount' => 'required|numeric|min:0',
             'frequency' => 'required|string|in:daily,weekly,monthly',
         ];
