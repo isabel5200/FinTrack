@@ -5,7 +5,7 @@ import Button from 'primevue/button';
 import InputIcon from 'primevue/inputicon';
 import IconField from 'primevue/iconfield';
 import InputText from 'primevue/inputtext';
-import Toolbar from 'primevue/toolbar';
+// import Toolbar from 'primevue/toolbar';
 
 // Props
 const props = defineProps({
@@ -34,6 +34,10 @@ const props = defineProps({
         default: false
     },
     onCreate: {
+        type: Function,
+        default: null
+    },
+    onView: {
         type: Function,
         default: null
     },
@@ -70,6 +74,13 @@ const handlePage = (e) => {
 const handleCreate = () => {
     if (props.onCreate) {
         props.onCreate();
+    }
+};
+
+// Handle view
+const handleView = (record) => {
+    if (props.onView) {
+        props.onView(record);
     }
 };
 
@@ -110,7 +121,8 @@ initFilters();
         <!-- Table header -->
         <template #header>
             <!-- Add button -->
-            <Button raised rounded label="New" type="button" icon="fa-solid fa-circle-plus" severity="success" @click="handleCreate" />
+            <Button raised rounded label="New" type="button" icon="fa-solid fa-circle-plus" severity="success"
+                @click="handleCreate" />
             <!-- Search -->
             <div class="flex justify-end mt-3">
                 <IconField>
@@ -140,6 +152,9 @@ initFilters();
         <Column header="Actions">
             <template #body="slotProps">
                 <div class="flex gap-2 items-center">
+                    <!-- View button -->
+                    <Button raised rounded v-tooltip.top="'View'" type="button" icon="fa-solid fa-eye"
+                        severity="primary" size="small" @click="handleEdit(slotProps.data)" />
                     <!-- Edit button -->
                     <Button raised rounded v-tooltip.top="'Edit'" type="button" icon="fa-solid fa-pencil"
                         severity="info" size="small" @click="handleEdit(slotProps.data)" />
