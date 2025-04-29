@@ -116,41 +116,52 @@ onMounted(() => {
 </script>
 
 <template>
+    <!-- Head title -->
 
     <Head title="Transactions" />
-
+    <!-- Layout -->
     <AuthenticatedLayout>
+        <!-- Header -->
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
                 Your transactions
             </h2>
         </template>
+        <!-- Create modal -->
         <Modal :show="isCreateModalOpen" :closeable="!form.processing" @close="closeCreateModal">
             <div class="m-5">
+                <!-- Title -->
                 <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
                     New transaction
                 </h2>
+                <!-- Form -->
                 <form @submit.prevent="createTransaction" class="mt-3">
+                    <!-- Amount -->
                     <InputLabel for="amount" value="Amount" />
                     <InputText id="amount" v-model="form.amount" type="number" placeholder="Enter an amount"
                         class="mt-1 block w-full" />
                     <InputError :message="form.errors.amount" class="mt-2" />
+                    <!-- Type -->
                     <InputLabel for="type" value="Type" class="mt-3" />
                     <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label"
                         placeholder="Select a type" class="mt-1 block w-full" appendTo="self" @change="getCategories" />
                     <InputError :message="form.errors.type" class="mt-2" />
+                    <!-- Category -->
                     <InputLabel for="category" value="Category" class="mt-3" />
                     <Select id="category" v-model="form.category" :options="categories" optionValue="id"
-                        optionLabel="name" placeholder="Select a category" :disabled="categories.length === 0 || isLoading"
-                        :loading="isLoading" class="mt-1 block w-full" appendTo="self" />
+                        optionLabel="name" placeholder="Select a category"
+                        :disabled="categories.length === 0 || isLoading" :loading="isLoading" class="mt-1 block w-full"
+                        appendTo="self" />
                     <InputError :message="form.errors.category" class="mt-2" />
                     <small class="text-sm text-gray-500 dark:text-gray-400">
                         Showing categories depending on the selected type.
                     </small>
+                    <!-- Description -->
                     <InputLabel for="description" value="Description" class="mt-3" />
                     <Textarea id="description" v-model="form.description" placeholder="Enter a description"
                         :autoResize="false" class="mt-1 block w-full" rows="3"></Textarea>
                     <InputError :message="form.errors.description" class="mt-2" />
+                    <!-- Attachment -->
                     <InputLabel for="attachment" value="File" class="mt-3" />
                     <small class="text-sm text-gray-500 dark:text-gray-400">
                         Attach a file (optional). Available formats: JPG, JPEG, PNG, WEBP, PDF
@@ -159,24 +170,34 @@ onMounted(() => {
                         chooseLabel="Select a file" :maxFileSize="2000000" @select="onSelectAttachment"
                         class="mt-1 block w-full" />
                     <InputError :message="form.errors.attachment" class="mt-2" />
+                    <!-- Date -->
                     <InputLabel for="date" value="Date" class="mt-3" />
-                    <DatePicker id="date" v-model="form.date" dateFormat="dd/mm/yy" placeholder="Enter a date" class="mt-1 block w-full" />
+                    <DatePicker id="date" v-model="form.date" dateFormat="dd/mm/yy" placeholder="Enter a date"
+                        class="mt-1 block w-full" />
                     <InputError :message="form.errors.date" class="mt-2" />
+                    <!-- Buttons -->
                     <div class="flex justify-end mt-5">
+                        <!-- Submit button -->
                         <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
+                            :disabled="!form.amount || !form.type || !form.category || !form.date || form.processing"
                             :loading="form.processing" />
+                        <!-- Cancel button -->
                         <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
-                            class="ml-2" @click="closeCreateModal" />
+                            :disabled="form.processing" class="ml-2" @click="closeCreateModal" />
                     </div>
                 </form>
             </div>
         </Modal>
+        <!-- Body -->
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                     <Card>
+                        <!-- Title -->
                         <template #title>Transactions</template>
+                        <!-- Content -->
                         <template #content>
+                            <!-- DataTable -->
                             <DataTable :columns="columns" :onCreate="openCreateModal" :data="props.transactions">
                             </DataTable>
                         </template>

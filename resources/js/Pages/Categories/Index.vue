@@ -89,18 +89,22 @@ onMounted(() => {
                 <form @submit.prevent="createCategory" class="mt-3">
                     <!-- Name -->
                     <InputLabel for="name" value="Name" />
-                    <InputText id="name" v-model="form.name" type="text" placeholder="Enter a name" class="mt-1 block w-full" />
+                    <InputText id="name" v-model="form.name" type="text" placeholder="Enter a name"
+                        class="mt-1 block w-full" />
                     <InputError :message="form.errors.name" class="mt-2" />
                     <!-- Type -->
                     <InputLabel for="type" value="Type" class="mt-3" />
-                    <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label" placeholder="Select a type" class="mt-1 block w-full" appendTo="self" />
+                    <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label"
+                        placeholder="Select a type" class="mt-1 block w-full" appendTo="self" />
                     <InputError :message="form.errors.type" class="mt-2" />
                     <!-- Buttons -->
                     <div class="flex justify-end mt-5">
                         <!-- Submit button -->
-                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus" :loading="form.processing" />
+                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
+                            :disabled="!form.name || !form.type || form.processing" :loading="form.processing" />
                         <!-- Cancel button -->
-                        <Button raised rounded label="Cancel" type="button" icon="fa-solid fa-rectangle-xmark" severity="danger" :disabled="form.processing" class="ml-2" @click="closeCreateModal" />
+                        <Button raised rounded label="Cancel" type="button" icon="fa-solid fa-rectangle-xmark"
+                            severity="danger" :disabled="form.processing" class="ml-2" @click="closeCreateModal" />
                     </div>
                 </form>
             </div>
