@@ -14,11 +14,11 @@ class TransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => 'required|numeric',
+            'amount' => 'required|numeric|min:0',
             'type' => 'required|string|in:expense,income',
-            'category_id' => 'required|integer|exists:categories,id',
+            'category' => 'required|integer|exists:categories,id',
             'description' => 'nullable|string|max:255',
-            'attachment' => 'nullable|file',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:2048',
             'date' => 'required|date',
         ];
     }

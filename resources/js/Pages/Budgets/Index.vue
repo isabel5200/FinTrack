@@ -43,10 +43,14 @@ const getCategories = async () => {
     try {
         const response = await axios.get(route('categories.getCategories'));
 
+        categories.value = response.data.categories;
+
+        /*
         categories.value = response.data.categories.map(category => ({
             ...category,
             label: `${category.name} (${category.type})`,
         }));
+        */
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -65,6 +69,7 @@ const resetForm = () => {
 
 const openCreateModal = () => {
     getCategories();
+
     isCreateModalOpen.value = true;
 };
 
@@ -105,7 +110,7 @@ onMounted(() => {
                 <form @submit.prevent="createBudget" class="mt-3">
                     <InputLabel for="category" value="Category" />
                     <Select id="category" v-model="form.category" :options="categories" optionValue="id"
-                        optionLabel="label" placeholder="Select a category" class="mt-1 block w-full" appendTo="self" />
+                        optionLabel="name" placeholder="Select a category" class="mt-1 block w-full" appendTo="self" />
                     <small class="text-sm text-gray-500 dark:text-gray-400">
                         Showing categories with type "Expense" only.
                     </small>
@@ -121,7 +126,7 @@ onMounted(() => {
                     <InputError :message="form.errors.frequency" class="mt-2" />
                     <div class="flex justify-end mt-5">
                         <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
-                            severity="success" :loading="form.processing" />
+                            :loading="form.processing" />
                         <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
                             class="ml-2" @click="closeCreateModal" />
                     </div>

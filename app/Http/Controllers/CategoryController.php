@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
-use Psy\Command\WhereamiCommand;
 
 class CategoryController extends Controller
 {
@@ -97,12 +96,35 @@ class CategoryController extends Controller
     {
         //
     }
+
     // Get categories for the select input in the form
     public function getCategories()
     {
         try {
             $categories = Category::where('user_id', Auth::user()->id)
                 ->where('type', '=', 'expense')
+                ->orderBy('name', 'ASC')->get();
+            $categories = CategoryResource::collection($categories);
+
+            return response()->json([
+                'categories' => $categories,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching categories',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Get categories by type for the select input in the form
+    public function getCategoriesByType(Request $request)
+    {
+        try {
+            $type = $request->input('type');
+
+            $categories = Category::where('user_id', Auth::user()->id)
+                ->where('type', '=', $type)
                 ->orderBy('name', 'ASC')->get();
             $categories = CategoryResource::collection($categories);
 

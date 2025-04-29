@@ -25,9 +25,10 @@ Route::middleware('auth')->group(function () {
     // Categories
     Route::resource('/categories', CategoryController::class);
     Route::get('/get-categories', [CategoryController::class, 'getCategories'])->name('categories.getCategories');
+    Route::post('/get-categories-by-type', [CategoryController::class, 'getCategoriesByType'])->name('categories.getCategoriesByType');
 
     // Transactions
-    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::resource('/transactions', TransactionController::class);
 
     // Budgets
     Route::resource('/budgets', BudgetController::class);

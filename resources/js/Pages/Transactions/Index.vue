@@ -1,9 +1,18 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
+import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Card from 'primevue/card';
 import DataTable from '@/Components/DataTable.vue';
+import DatePicker from 'primevue/datepicker';
+import FileUpload from 'primevue/fileupload';
+import Modal from '@/Components/Modal.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import InputText from 'primevue/inputtext';
+import Select from 'primevue/select';
+import Textarea from 'primevue/textarea';
 
 const props = defineProps({
     transactions: {
@@ -12,6 +21,14 @@ const props = defineProps({
     }
 });
 
+const toast = useToast();
+const isCreateModalOpen = ref(false);
+const isLoading = ref(false);
+const categories = ref([]);
+const types = [
+    { value: 'expense', label: 'Expense' },
+    { value: 'income', label: 'Income' },
+];
 const columns = [
     { field: 'id', header: 'ID' },
     { field: 'amount', header: 'Amount' },
@@ -20,9 +37,81 @@ const columns = [
     { field: 'description', header: 'Description' },
     { field: 'date', header: 'Date' },
 ];
+const form = useForm({
+    id: null,
+    amount: '',
+    type: '',
+    category: '',
+    description: '',
+    attachment: null,
+    date: '',
+});
+
+// Get categories based on the selected type
+const getCategories = async () => {
+    isLoading.value = true;
+
+    try {
+        const response = await axios.post(route('categories.getCategoriesByType', { type: form.type }));
+        isLoading.value = false;
+
+        if (response.data?.categories?.length === 0) {
+            toast.add({
+                severity: 'info',
+                summary: 'Info',
+                detail: 'No categories found for the selected type.',
+                life: 3000,
+            });
+        } else if (response.data?.categories) {
+            categories.value = response.data.categories;
+        }
+    } catch (error) {
+        isLoading.value = false;
+
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${error.response?.data?.message ?? 'An error occurred'}`,
+            life: 3000,
+        });
+
+        console.error(error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const resetForm = () => {
+    form.reset();
+};
+
+const openCreateModal = () => {
+    isCreateModalOpen.value = true;
+};
+
+const closeCreateModal = () => {
+    resetForm();
+    categories.value = [];
+
+    isCreateModalOpen.value = false;
+};
+
+const onSelectAttachment = (e) => {
+    const file = e.files ? e.files[0] : null;
+
+    form.attachment = file;
+};
+
+const createTransaction = () => {
+    form.errors = {};
+    form.post(route('transactions.store'), {
+        onSuccess: () => {
+            closeCreateModal();
+        },
+    });
+};
 
 onMounted(() => {
-    console.log(props.transactions);
 });
 </script>
 
@@ -36,14 +125,60 @@ onMounted(() => {
                 Your transactions
             </h2>
         </template>
-
+        <Modal :show="isCreateModalOpen" :closeable="!form.processing" @close="closeCreateModal">
+            <div class="m-5">
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                    New transaction
+                </h2>
+                <form @submit.prevent="createTransaction" class="mt-3">
+                    <InputLabel for="amount" value="Amount" />
+                    <InputText id="amount" v-model="form.amount" type="number" placeholder="Enter an amount"
+                        class="mt-1 block w-full" />
+                    <InputError :message="form.errors.amount" class="mt-2" />
+                    <InputLabel for="type" value="Type" class="mt-3" />
+                    <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label"
+                        placeholder="Select a type" class="mt-1 block w-full" appendTo="self" @change="getCategories" />
+                    <InputError :message="form.errors.type" class="mt-2" />
+                    <InputLabel for="category" value="Category" class="mt-3" />
+                    <Select id="category" v-model="form.category" :options="categories" optionValue="id"
+                        optionLabel="name" placeholder="Select a category" :disabled="categories.length === 0 || isLoading"
+                        :loading="isLoading" class="mt-1 block w-full" appendTo="self" />
+                    <InputError :message="form.errors.category" class="mt-2" />
+                    <small class="text-sm text-gray-500 dark:text-gray-400">
+                        Showing categories depending on the selected type.
+                    </small>
+                    <InputLabel for="description" value="Description" class="mt-3" />
+                    <Textarea id="description" v-model="form.description" placeholder="Enter a description"
+                        :autoResize="false" class="mt-1 block w-full" rows="3"></Textarea>
+                    <InputError :message="form.errors.description" class="mt-2" />
+                    <InputLabel for="attachment" value="File" class="mt-3" />
+                    <small class="text-sm text-gray-500 dark:text-gray-400">
+                        Attach a file (optional). Available formats: JPG, JPEG, PNG, WEBP, PDF
+                    </small>
+                    <FileUpload mode="basic" name="attachment" accept="image/*,application/pdf" :auto="false"
+                        chooseLabel="Select a file" :maxFileSize="2000000" @select="onSelectAttachment"
+                        class="mt-1 block w-full" />
+                    <InputError :message="form.errors.attachment" class="mt-2" />
+                    <InputLabel for="date" value="Date" class="mt-3" />
+                    <DatePicker id="date" v-model="form.date" dateFormat="dd/mm/yy" placeholder="Enter a date" class="mt-1 block w-full" />
+                    <InputError :message="form.errors.date" class="mt-2" />
+                    <div class="flex justify-end mt-5">
+                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
+                            :loading="form.processing" />
+                        <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
+                            class="ml-2" @click="closeCreateModal" />
+                    </div>
+                </form>
+            </div>
+        </Modal>
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                     <Card>
                         <template #title>Transactions</template>
                         <template #content>
-                            <DataTable :columns="columns" :data="props.transactions"></DataTable>
+                            <DataTable :columns="columns" :onCreate="openCreateModal" :data="props.transactions">
+                            </DataTable>
                         </template>
                     </Card>
                 </div>

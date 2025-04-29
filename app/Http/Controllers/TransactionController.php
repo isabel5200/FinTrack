@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
 
 class TransactionController extends Controller
@@ -44,9 +47,28 @@ class TransactionController extends Controller
         //
     }
 
-    public function store(Request $request)
+    public function store(TransactionRequest $request)
     {
-        //
+        try {
+            $data = $request->validated();
+            $data['category_id'] = $data['category'];
+            $data['date'] = Carbon::parse($data['date'])->toDateString();
+            $userId = Auth::user()->id;
+            $data['user_id'] = $userId;
+
+            if ($request->hasFile('attachment')) {
+                $path = $request->file('attachment')->store("attachments/user_{$userId}");
+                $data['attachment'] = $path;
+            }
+
+            Transaction::create($data);
+
+            session()->flash('success', 'Transaction created successfully');
+        } catch (\Exception $e) {
+            Log::error('Error creating transaction: ' . $e->getMessage());
+
+            session()->flash('error', 'An error occurred while creating the transaction');
+        }
     }
 
     public function show(string $id)

@@ -98,7 +98,7 @@ onMounted(() => {
                     <!-- Buttons -->
                     <div class="flex justify-end mt-5">
                         <!-- Submit button -->
-                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus" severity="success" :loading="form.processing" />
+                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus" :loading="form.processing" />
                         <!-- Cancel button -->
                         <Button raised rounded label="Cancel" type="button" icon="fa-solid fa-rectangle-xmark" severity="danger" :disabled="form.processing" class="ml-2" @click="closeCreateModal" />
                     </div>
