@@ -20,6 +20,7 @@ const props = defineProps({
 
 const toast = useToast();
 const isCreateModalOpen = ref(false);
+const isViewModalOpen = ref(false);
 const categories = ref([]);
 const frequencies = [
     { value: 'daily', label: 'Daily' },
@@ -38,6 +39,7 @@ const form = useForm({
     max_amount: '',
     frequency: '',
 });
+const viewBudget = ref([]);
 
 const getCategories = async () => {
     try {
@@ -51,6 +53,24 @@ const getCategories = async () => {
             label: `${category.name} (${category.type})`,
         }));
         */
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${error.response?.data?.message ?? 'An error occurred'}`,
+            life: 3000,
+        });
+
+        console.error(error);
+    }
+};
+
+const getBudget = async (id) => {
+    try {
+        const response = await axios.get(route('budgets.show', id));
+
+        viewBudget.value = response.data.budget;
+        isViewModalOpen.value = true;
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -145,6 +165,38 @@ onMounted(() => {
                 </form>
             </div>
         </Modal>
+        <!-- View modal -->
+        <Modal :show="isViewModalOpen" :closeable="true" @close="isViewModalOpen = false">
+            <div class="m-5">
+                <!-- Title -->
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                    Budget details
+                </h2>
+                <!-- Details -->
+                <div class="mt-3 space-y-4">
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Category:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.category }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Max Amount:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.max_amount }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Frequency:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.frequency }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Created:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.created }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Last updated:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.updated }}</span>
+                    </div>
+                </div>
+            </div>
+        </Modal>
         <!-- Body -->
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -155,7 +207,8 @@ onMounted(() => {
                         <!-- Content -->
                         <template #content>
                             <!-- DataTable -->
-                            <DataTable :columns="columns" :onCreate="openCreateModal" :data="props.budgets"></DataTable>
+                            <DataTable :columns="columns" :onCreate="openCreateModal" :onView="getBudget"
+                                :data="props.budgets"></DataTable>
                         </template>
                     </Card>
                 </div>

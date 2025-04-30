@@ -154,7 +154,7 @@ initFilters();
                 <div class="flex gap-2 items-center">
                     <!-- View button -->
                     <Button raised rounded v-tooltip.top="'View'" type="button" icon="fa-solid fa-eye"
-                        severity="primary" size="small" @click="handleEdit(slotProps.data)" />
+                        severity="primary" size="small" @click="handleView(slotProps.data.id)" />
                     <!-- Edit button -->
                     <Button raised rounded v-tooltip.top="'Edit'" type="button" icon="fa-solid fa-pencil"
                         severity="info" size="small" @click="handleEdit(slotProps.data)" />
