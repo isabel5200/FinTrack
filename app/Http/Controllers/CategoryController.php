@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ViewCategoryResource;
 
 class CategoryController extends Controller
 {
@@ -40,7 +41,7 @@ class CategoryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CategoryRequest $request)
+    public function create()
     {
         //
     }
@@ -70,7 +71,20 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $category = Category::findOrFail($id);
+            $this->authorize('view', $category);
+            $category = ViewCategoryResource::make($category);
+
+            return response()->json([
+                'category' => $category,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching the category',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

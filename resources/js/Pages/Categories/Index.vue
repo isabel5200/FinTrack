@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Card from 'primevue/card';
@@ -20,6 +20,7 @@ const props = defineProps({
 
 // Variables
 const isCreateModalOpen = ref(false);
+const isViewModalOpen = ref(false);
 const types = [
     { value: 'expense', label: 'Expense' },
     { value: 'income', label: 'Income' },
@@ -34,8 +35,24 @@ const form = useForm({
     name: '',
     type: ''
 });
+const viewCategory = ref([]);
 
 // Methods
+const getCategory = async (id) => {
+    try {
+        const response = await axios.get(route('categories.show', id));
+
+        viewCategory.value = response.data.category;
+        isViewModalOpen.value = true;
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${error.response?.data?.message ?? 'An error occurred'}`,
+            life: 3000,
+        });
+    }
+};
 
 // Form methods
 const resetForm = () => {
@@ -109,6 +126,38 @@ onMounted(() => {
                 </form>
             </div>
         </Modal>
+        <!-- View modal -->
+        <Modal :show="isViewModalOpen" :closeable="true" @close="isViewModalOpen = false">
+            <div class="m-5">
+                <!-- Title -->
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                    Category details
+                </h2>
+                <!-- Details -->
+                <div class="mt-3 space-y-4">
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Name:</span>
+                        <span class="text-gray-900 dark:text-gray-100">
+                            {{ viewCategory.name }}
+                        </span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Type:</span>
+                        <span class="text-gray-900 dark:text-gray-100">
+                            {{ viewCategory.type }}
+                        </span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Created:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewCategory.created }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Last updated:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewCategory.updated }}</span>
+                    </div>
+                </div>
+            </div>
+        </Modal>
         <!-- Body -->
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -124,7 +173,8 @@ onMounted(() => {
                         <!-- Content -->
                         <template #content>
                             <!-- DataTable -->
-                            <DataTable :columns="columns" :onCreate="openCreateModal" :data="props.categories">
+                            <DataTable :columns="columns" :onCreate="openCreateModal" :onView="getCategory"
+                                :data="props.categories">
                             </DataTable>
                         </template>
                     </Card>
