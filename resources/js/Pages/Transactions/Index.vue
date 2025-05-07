@@ -231,14 +231,14 @@ onMounted(() => {
                         <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Category:</span>
                         <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.category }}</span>
                     </div>
-                    <div v-if="viewTransaction.attachment" class="flex items-center">
+                    <div v-if="viewTransaction.attachment_view" class="flex items-center">
                         <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Attachment:</span>
-                        <a :href="viewTransaction.attachment" target="_blank"
+                        <a :href="viewTransaction.attachment_view" target="_blank"
                             class="text-blue-500 hover:underline dark:text-blue-400">
                             View
                         </a>
                         <span class="mx-2">|</span>
-                        <a :href="viewTransaction.attachment_download_url" target="_blank"
+                        <a :href="viewTransaction.attachment_download" target="_blank"
                             class="text-blue-500 hover:underline dark:text-blue-400">
                             Download
                         </a>

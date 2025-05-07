@@ -29,7 +29,10 @@ Route::middleware('auth')->group(function () {
 
     // Transactions
     Route::resource('/transactions', TransactionController::class);
+
+    // Attachments
     Route::get('/transactions/{transaction}/view', [TransactionController::class, 'viewFile'])->name('transactions.viewFile');
+    Route::get('/transactions/{transaction}/download', [TransactionController::class, 'downloadFile'])->name('transactions.downloadFile');
 
     // Budgets
     Route::resource('/budgets', BudgetController::class);

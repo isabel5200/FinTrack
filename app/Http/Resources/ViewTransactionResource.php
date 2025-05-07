@@ -14,8 +14,11 @@ class ViewTransactionResource extends JsonResource
             'type' => ucfirst($this->type),
             'category' => $this->category->name,
             'description' => $this->description,
-            'attachment' => $this->attachment
+            'attachment_view' => $this->attachment
                 ? route('transactions.viewFile', ['transaction' => $this->id])
+                : null,
+            'attachment_download' => $this->attachment
+                ? route('transactions.downloadFile', ['transaction' => $this->id])
                 : null,
             'date' => $this->date,
             'created' => $this->created_at->format('m-d-Y H:i'),

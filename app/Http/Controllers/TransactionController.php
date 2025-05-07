@@ -129,4 +129,26 @@ class TransactionController extends Controller
             ], 500);
         }
     }
+
+    public function downloadFile(string $id)
+    {
+        try {
+            $transaction = Transaction::where('id', $id)->firstOrFail();
+
+            $this->authorize('view', $transaction);
+
+            if ($transaction->attachment) {
+                return response()->download(storage_path('app/private/' . $transaction->attachment));
+            } else {
+                return response()->json([
+                    'message' => 'No attachment found for this transaction'
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while downloading the file',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
