@@ -235,12 +235,12 @@ onMounted(() => {
                         <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Attachment:</span>
                         <a :href="viewTransaction.attachment_view" target="_blank"
                             class="text-blue-500 hover:underline dark:text-blue-400">
-                            View
+                            <Button label="View" icon="fa-solid fa-eye" severity="info" size="small" />
                         </a>
-                        <span class="mx-2">|</span>
                         <a :href="viewTransaction.attachment_download" target="_blank"
                             class="text-blue-500 hover:underline dark:text-blue-400">
-                            Download
+                            <Button label="Download" icon="fa-solid fa-download" severity="success" size="small"
+                                class="ml-2" />
                         </a>
                     </div>
                     <div class="flex items-center">
