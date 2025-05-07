@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
+use App\Http\Resources\ViewTransactionResource;
 
 class TransactionController extends Controller
 {
@@ -73,7 +74,23 @@ class TransactionController extends Controller
 
     public function show(string $id)
     {
-        //
+        try {
+            $transaction = Transaction::with('category')
+                ->where('id', $id)
+                ->firstOrFail();
+
+            $this->authorize('view', $transaction);
+            $transaction = ViewTransactionResource::make($transaction);
+
+            return response()->json([
+                'transaction' => $transaction,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching the transaction',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function edit(string $id)
@@ -89,5 +106,27 @@ class TransactionController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function viewFile(string $id)
+    {
+        try {
+            $transaction = Transaction::where('id', $id)->firstOrFail();
+
+            $this->authorize('view', $transaction);
+
+            if ($transaction->attachment) {
+                return response()->file(storage_path('app/private/' . $transaction->attachment));
+            } else {
+                return response()->json([
+                    'message' => 'No attachment found for this transaction'
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching the file',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

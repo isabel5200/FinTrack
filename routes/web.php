@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     // Transactions
     Route::resource('/transactions', TransactionController::class);
+    Route::get('/transactions/{transaction}/view', [TransactionController::class, 'viewFile'])->name('transactions.viewFile');
 
     // Budgets
     Route::resource('/budgets', BudgetController::class);
