@@ -11,6 +11,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import PrimeVue from 'primevue/config';
 import Material from '@primeuix/themes/material';
 // Global Components
+import ConfirmDialog from 'primevue/confirmdialog';
+import ConfirmationService from 'primevue/confirmationservice';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from "primevue/button";
@@ -40,7 +42,9 @@ createInertiaApp({
                     }
                 },
             })
+            .use(ConfirmationService)
             .use(ToastService)
+            .component('ConfirmDialog', ConfirmDialog)
             .component('DataTable', DataTable)
             .component('Column', Column)
             .component('Button', Button)

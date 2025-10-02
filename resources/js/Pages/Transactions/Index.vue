@@ -1,6 +1,7 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
+import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Card from 'primevue/card';
@@ -21,6 +22,7 @@ const props = defineProps({
     }
 });
 
+const confirm = useConfirm();
 const toast = useToast();
 const isCreateModalOpen = ref(false);
 const isViewModalOpen = ref(false);
@@ -83,14 +85,60 @@ const getCategories = async () => {
     }
 };
 
+// View transaction details
 const getTransaction = async (id) => {
     try {
         const response = await axios.get(route('transactions.show', id));
 
         viewTransaction.value = response.data.transaction;
         isViewModalOpen.value = true;
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${error.response?.data?.message ?? 'An error occurred'}`,
+            life: 3000,
+        });
 
-        console.log(response.data.transaction);
+        console.error(error);
+    }
+};
+
+// Confirm delete transaction
+const confirmDeleteTransaction = (id) => {
+    confirm.require({
+        message: 'Are you sure you want to delete this transaction?',
+        header: 'Confirmation',
+        icon: 'fa-solid fa-triangle-exclamation',
+        rejectLabel: 'Cancel',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true,
+            raised: true,
+            rounded: true
+        },
+        acceptProps: {
+            label: 'Delete',
+            severity: 'danger',
+            raised: true,
+            rounded: true
+        },
+        accept: () => deleteTransaction(id)
+    });
+};
+
+// Delete transaction
+const deleteTransaction = async (id) => {
+    try {
+        await axios.delete(route('transactions.destroy', id));
+
+        toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Transaction deleted successfully.',
+            life: 3000,
+        });
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -143,6 +191,8 @@ onMounted(() => {
     <Head title="Transactions" />
     <!-- Layout -->
     <AuthenticatedLayout>
+        <!-- Confirm dialog -->
+        <ConfirmDialog />
         <!-- Header -->
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
@@ -199,13 +249,13 @@ onMounted(() => {
                     <InputError :message="form.errors.date" class="mt-2" />
                     <!-- Buttons -->
                     <div class="flex justify-end mt-5">
+                        <!-- Cancel button -->
+                        <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
+                            :disabled="form.processing" class="mr-2" @click="closeCreateModal" />
                         <!-- Submit button -->
                         <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
                             :disabled="!form.amount || !form.type || !form.category || !form.date || form.processing"
                             :loading="form.processing" />
-                        <!-- Cancel button -->
-                        <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
-                            :disabled="form.processing" class="ml-2" @click="closeCreateModal" />
                     </div>
                 </form>
             </div>
@@ -272,8 +322,8 @@ onMounted(() => {
                         <!-- Content -->
                         <template #content>
                             <!-- DataTable -->
-                            <DataTable :columns="columns" :onView="getTransaction" :onCreate="openCreateModal"
-                                :data="props.transactions">
+                            <DataTable :columns="columns" :onCreate="openCreateModal" :onView="getTransaction"
+                                :onDelete="confirmDeleteTransaction" :data="props.transactions">
                             </DataTable>
                         </template>
                     </Card>

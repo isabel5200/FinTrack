@@ -105,7 +105,22 @@ class TransactionController extends Controller
 
     public function destroy(string $id)
     {
-        //
+        try {
+            $transaction = Transaction::where('id', $id)->firstOrFail();
+
+            $this->authorize('delete', $transaction);
+
+            $transaction->delete();
+
+            return response()->json([
+                'message' => 'Transaction deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while deleting the transaction',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function viewFile(string $id)

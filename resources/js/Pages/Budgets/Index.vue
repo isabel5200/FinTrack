@@ -154,13 +154,13 @@ onMounted(() => {
                     <InputError :message="form.errors.frequency" class="mt-2" />
                     <!-- Buttons -->
                     <div class="flex justify-end mt-5">
+                        <!-- Cancel button  -->
+                        <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
+                            :disabled="form.processing" class="mr-2" @click="closeCreateModal" />
                         <!-- Submit button -->
                         <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
                             :disabled="!form.category || !form.max_amount || !form.frequency || form.processing"
                             :loading="form.processing" />
-                        <!-- Cancel button  -->
-                        <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
-                            :disabled="form.processing" class="ml-2" @click="closeCreateModal" />
                     </div>
                 </form>
             </div>
