@@ -1,5 +1,5 @@
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from "primevue/usetoast";
@@ -50,6 +50,23 @@ const form = useForm({
     date: '',
 });
 const viewTransaction = ref([]);
+
+// Open and close create modal
+const openCreateModal = () => {
+    isCreateModalOpen.value = true;
+};
+
+const closeCreateModal = () => {
+    resetForm();
+    categories.value = [];
+
+    isCreateModalOpen.value = false;
+};
+
+// Methods
+const resetForm = () => {
+    form.reset();
+};
 
 // Get categories based on the selected type
 const getCategories = async () => {
@@ -104,6 +121,23 @@ const getTransaction = async (id) => {
     }
 };
 
+// Handle file selection
+const onSelectAttachment = (e) => {
+    const file = e.files ? e.files[0] : null;
+
+    form.attachment = file;
+};
+
+// Create a new transaction
+const createTransaction = () => {
+    form.errors = {};
+    form.post(route('transactions.store'), {
+        onSuccess: () => {
+            closeCreateModal();
+        },
+    });
+};
+
 // Confirm delete transaction
 const confirmDeleteTransaction = (id) => {
     confirm.require({
@@ -131,14 +165,16 @@ const confirmDeleteTransaction = (id) => {
 // Delete transaction
 const deleteTransaction = async (id) => {
     try {
-        await axios.delete(route('transactions.destroy', id));
+        const response = await axios.delete(route('transactions.destroy', id));
 
         toast.add({
             severity: 'success',
             summary: 'Success',
-            detail: 'Transaction deleted successfully.',
+            detail: `${response?.data?.message}` || 'Transaction deleted successfully',
             life: 3000,
         });
+
+        router.reload({ only: ['transactions'] });
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -151,36 +187,7 @@ const deleteTransaction = async (id) => {
     }
 };
 
-const resetForm = () => {
-    form.reset();
-};
-
-const openCreateModal = () => {
-    isCreateModalOpen.value = true;
-};
-
-const closeCreateModal = () => {
-    resetForm();
-    categories.value = [];
-
-    isCreateModalOpen.value = false;
-};
-
-const onSelectAttachment = (e) => {
-    const file = e.files ? e.files[0] : null;
-
-    form.attachment = file;
-};
-
-const createTransaction = () => {
-    form.errors = {};
-    form.post(route('transactions.store'), {
-        onSuccess: () => {
-            closeCreateModal();
-        },
-    });
-};
-
+// Vue methods
 onMounted(() => {
 });
 </script>

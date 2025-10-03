@@ -1,6 +1,8 @@
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
+import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Card from 'primevue/card';
 import DataTable from '@/Components/DataTable.vue';
@@ -9,7 +11,6 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
-import { useToast } from "primevue/usetoast";
 
 const props = defineProps({
     budgets: {
@@ -18,6 +19,7 @@ const props = defineProps({
     }
 });
 
+const confirm = useConfirm();
 const toast = useToast();
 const isCreateModalOpen = ref(false);
 const isViewModalOpen = ref(false);
@@ -108,6 +110,55 @@ const createBudget = () => {
     });
 };
 
+// Confirm delete budget
+const confirmDeleteBudget = (id) => {
+    confirm.require({
+        message: 'Are you sure you want to delete this budget?',
+        header: 'Confirmation',
+        icon: 'fa-solid fa-triangle-exclamation',
+        rejectLabel: 'Cancel',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true,
+            raised: true,
+            rounded: true
+        },
+        acceptProps: {
+            label: 'Delete',
+            severity: 'danger',
+            raised: true,
+            rounded: true
+        },
+        accept: () => deleteBudget(id)
+    });
+};
+
+// Delete budget
+const deleteBudget = async (id) => {
+    try {
+        const response = await axios.delete(route('budgets.destroy', id));
+
+        toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `${response?.data?.message}` || 'Budget deleted successfully',
+            life: 3000,
+        });
+
+        router.reload({ only: ['budgets'] });
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${error.response?.data?.message ?? 'An error occurred'}`,
+            life: 3000,
+        });
+
+        console.error(error);
+    }
+};
+
 onMounted(() => {
 });
 </script>
@@ -118,6 +169,8 @@ onMounted(() => {
     <Head title="Budgets" />
     <!-- Layout -->
     <AuthenticatedLayout>
+        <!-- Confirm dialog -->
+        <ConfirmDialog />
         <!-- Header -->
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
@@ -208,7 +261,7 @@ onMounted(() => {
                         <template #content>
                             <!-- DataTable -->
                             <DataTable :columns="columns" :onCreate="openCreateModal" :onView="getBudget"
-                                :data="props.budgets"></DataTable>
+                                :onDelete="confirmDeleteBudget" :data="props.budgets"></DataTable>
                         </template>
                     </Card>
                 </div>

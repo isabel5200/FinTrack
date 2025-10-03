@@ -64,7 +64,9 @@ class TransactionController extends Controller
 
             Transaction::create($data);
 
-            session()->flash('success', 'Transaction created successfully');
+            return redirect()
+                ->route('transactions.index')
+                ->with('success', 'Transaction created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating transaction: ' . $e->getMessage());
 

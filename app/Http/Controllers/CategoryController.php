@@ -57,7 +57,9 @@ class CategoryController extends Controller
 
             Category::create($data);
 
-            session()->flash('success', 'Category created successfully');
+            return redirect()
+                ->route('categories.index')
+                ->with('success', 'Category created successfully');
         } catch (\Exception $e) {
             // Log::error('Error creating category: ' . $e->getMessage());
             session()->flash('error', 'An error occurred while creating the category');

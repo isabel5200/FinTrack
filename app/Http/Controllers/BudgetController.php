@@ -53,7 +53,9 @@ class BudgetController extends Controller
 
             Budget::create($data);
 
-            session()->flash('success', 'Budget created successfully');
+            return redirect()
+                ->route('budgets.index')
+                ->with('success', 'Budget created successfully');
         } catch (\Exception $e) {
             session()->flash('error', 'An error occurred while creating the budget');
         }
@@ -116,6 +118,21 @@ class BudgetController extends Controller
 
     public function destroy(string $id)
     {
-        //
+        try {
+            $budget = Budget::where('id', $id)->firstOrFail();
+
+            $this->authorize('delete', $budget);
+
+            $budget->delete();
+
+            return response()->json([
+                'message' => 'Budget deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while deleting the budget',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
