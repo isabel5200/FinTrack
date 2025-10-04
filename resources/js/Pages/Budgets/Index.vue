@@ -86,6 +86,7 @@ const getBudget = async (id) => {
 };
 
 const resetForm = () => {
+    form.errors = {};
     form.reset();
 };
 

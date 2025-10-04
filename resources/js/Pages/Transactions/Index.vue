@@ -51,22 +51,7 @@ const form = useForm({
 });
 const viewTransaction = ref([]);
 
-// Open and close create modal
-const openCreateModal = () => {
-    isCreateModalOpen.value = true;
-};
-
-const closeCreateModal = () => {
-    resetForm();
-    categories.value = [];
-
-    isCreateModalOpen.value = false;
-};
-
 // Methods
-const resetForm = () => {
-    form.reset();
-};
 
 // Get categories based on the selected type
 const getCategories = async () => {
@@ -126,6 +111,23 @@ const onSelectAttachment = (e) => {
     const file = e.files ? e.files[0] : null;
 
     form.attachment = file;
+};
+
+// Form methods
+const resetForm = () => {
+    form.reset();
+};
+
+// Open and close create modal
+const openCreateModal = () => {
+    isCreateModalOpen.value = true;
+};
+
+const closeCreateModal = () => {
+    resetForm();
+    categories.value = [];
+
+    isCreateModalOpen.value = false;
 };
 
 // Create a new transaction

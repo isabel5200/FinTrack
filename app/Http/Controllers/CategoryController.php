@@ -110,7 +110,22 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $category = Category::where('id', $id)->firstOrFail();
+
+            $this->authorize('delete', $category);
+
+            $category->delete();
+
+            return response()->json([
+                'message' => 'Category deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error ocurred while deleting the category',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // Get categories for the select input in the form
