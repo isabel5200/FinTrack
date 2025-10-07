@@ -6,11 +6,13 @@ import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Card from 'primevue/card';
 import DataTable from '@/Components/DataTable.vue';
+import Dialog from 'primevue/dialog';
 import DatePicker from 'primevue/datepicker';
 import FileUpload from 'primevue/fileupload';
 import Modal from '@/Components/Modal.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import ProgressSpinner from 'primevue/progressspinner';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import Textarea from 'primevue/textarea';
@@ -24,6 +26,7 @@ const props = defineProps({
 
 const confirm = useConfirm();
 const toast = useToast();
+const visible = ref(false);
 const isCreateModalOpen = ref(false);
 const isViewModalOpen = ref(false);
 const isLoading = ref(false);
@@ -202,6 +205,16 @@ onMounted(() => {
     <AuthenticatedLayout>
         <!-- Confirm dialog -->
         <ConfirmDialog />
+        <!-- Loading dialog -->
+        <Dialog v-model:visible="visible" modal pt:root:class="!border-0" :closable="false" :closeOnEscape="false">
+            <template #container="{ closeCallback }">
+                <div class="flex items-center px-3 py-3 gap-3 rounded-2xl">
+                    <ProgressSpinner style="width: 20px; height: 20px;" strokeWidth="8" fill="transparent"
+                        animationDuration="1.5s" aria-label="Custom ProgressSpinner" :unstyled="false" />
+                    <h1 class="font-bold text-base text-blue-500 dark:text-blue-200">Cargando... Por favor espere.</h1>
+                </div>
+            </template>
+        </Dialog>
         <!-- Header -->
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
