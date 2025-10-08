@@ -140,8 +140,12 @@ const confirmDeleteBudget = (id) => {
 
 // Delete budget
 const deleteBudget = async (id) => {
+    visible.value = true;
+
     try {
         const response = await axios.delete(route('budgets.destroy', id));
+
+        visible.value = false;
 
         toast.add({
             severity: 'success',
@@ -160,6 +164,8 @@ const deleteBudget = async (id) => {
         });
 
         console.error(error);
+
+        visible.value = false;
     }
 };
 
@@ -181,7 +187,7 @@ onMounted(() => {
                 <div class="flex items-center px-3 py-3 gap-3 rounded-2xl">
                     <ProgressSpinner style="width: 20px; height: 20px;" strokeWidth="8" fill="transparent"
                         animationDuration="1.5s" aria-label="Custom ProgressSpinner" :unstyled="false" />
-                    <h1 class="font-bold text-base text-blue-500 dark:text-blue-200">Cargando... Por favor espere.</h1>
+                    <h1 class="font-bold text-base text-blue-500 dark:text-blue-200">Loading... Please wait.</h1>
                 </div>
             </template>
         </Dialog>
