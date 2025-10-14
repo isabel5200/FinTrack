@@ -94,7 +94,25 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        try {
+            $category = Category::where('categories.id', $id)
+                ->where('categories.user_id', Auth::user()->id)
+                ->select(
+                    'categories.name',
+                    'categories.type'
+                )
+                ->firstOrFailt();
+            $this->authorize('view', $category);
+
+            return response()->json([
+                'category' => $category,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching the category',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

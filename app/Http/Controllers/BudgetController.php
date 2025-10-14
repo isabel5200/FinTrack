@@ -6,6 +6,7 @@ use App\Models\Budget;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Log;
 use App\Http\Requests\BudgetRequest;
+use App\Http\Requests\EditBudgetRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\BudgetResource;
 use App\Http\Resources\ViewBudgetResource;
@@ -111,9 +112,25 @@ class BudgetController extends Controller
         }
     }
 
-    public function update(Request $request, string $id)
+    public function update(EditBudgetRequest $request, string $id)
     {
-        //
+        try {
+            $data = $request->validated();
+            $budget = Budget::where('id', $id)->firstOrFail();
+
+            $this->authorize('update', $budget);
+
+            $budget->update($data);
+
+            return response()->json([
+                'message' => 'Budget updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the budget',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy(string $id)
