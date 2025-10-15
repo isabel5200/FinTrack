@@ -88,16 +88,15 @@ class BudgetController extends Controller
     public function edit(string $id)
     {
         try {
-            $budget = Budget::join('categories', 'budgets.category_id', '=', 'categories.id')
+            $budget = Budget::select(
+                'budgets.id',
+                'categories.name as category_name',
+                'budgets.max_amount',
+                'budgets.frequency',
+            )
+                ->join('categories', 'budgets.category_id', '=', 'categories.id')
                 ->where('budgets.id', $id)
                 ->where('budgets.user_id', Auth::user()->id)
-                ->select(
-                    'categories.name as category_name',
-                    'budgets.max_amount',
-                    'budgets.frequency',
-                    'budgets.created_at',
-                    'budgets.updated_at',
-                )
                 ->firstOrFail();
             $this->authorize('view', $budget);
 

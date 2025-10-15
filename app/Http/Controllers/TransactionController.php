@@ -98,20 +98,19 @@ class TransactionController extends Controller
     public function edit(string $id)
     {
         try {
-            $transaction = Transaction::join('categories', 'transactions.category_id', '=', 'categories.id')
+            $transaction = Transaction::select(
+                'transactions.id',
+                'transactions.amount',
+                'transactions.type',
+                'categories.name as category_name',
+                'transactions.description',
+                'transactions.attachment',
+                'transactions.date',
+            )
+                ->join('categories', 'transactions.category_id', '=', 'categories.id')
                 ->where('transactions.id', $id)
                 ->where('transactions.user_id', Auth::user()->id)
-                ->select(
-                    'transactions.amount',
-                    'transactions.type',
-                    'transactions.category_id',
-                    'categories.name as category_name',
-                    'transactions.description',
-                    'transactions.attachment',
-                    'transactions.date',
-                )
                 ->firstOrFail();
-
             $this->authorize('show', $transaction);
 
             return response()->json([

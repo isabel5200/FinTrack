@@ -95,13 +95,14 @@ class CategoryController extends Controller
     public function edit(string $id)
     {
         try {
-            $category = Category::where('categories.id', $id)
+            $category = Category::select(
+                'categories.id',
+                'categories.name',
+                'categories.type',
+            )
+                ->where('categories.id', $id)
                 ->where('categories.user_id', Auth::user()->id)
-                ->select(
-                    'categories.name',
-                    'categories.type'
-                )
-                ->firstOrFailt();
+                ->firstOrFail();
             $this->authorize('view', $category);
 
             return response()->json([
