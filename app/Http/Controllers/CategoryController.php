@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\EditCategoryResource;
 use App\Http\Resources\ViewCategoryResource;
 
 class CategoryController extends Controller
@@ -95,15 +96,11 @@ class CategoryController extends Controller
     public function edit(string $id)
     {
         try {
-            $category = Category::select(
-                'categories.id',
-                'categories.name',
-                'categories.type',
-            )
-                ->where('categories.id', $id)
-                ->where('categories.user_id', Auth::user()->id)
+            $category = Category::where('id', $id)
+                ->where('user_id', Auth::user()->id)
                 ->firstOrFail();
             $this->authorize('view', $category);
+            $category = EditCategoryResource::make($category);
 
             return response()->json([
                 'category' => $category,

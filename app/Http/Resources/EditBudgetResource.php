@@ -11,9 +11,9 @@ class EditBudgetResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'category' => $this->category_name,
-            'max_amount' => '$' . number_format($this->max_amount, 2),
-            'frequency' => ucfirst($this->frequency),
+            'category' => $this->category->id,
+            'max_amount' => $this->max_amount,
+            'frequency' => $this->frequency,
         ];
     }
 }

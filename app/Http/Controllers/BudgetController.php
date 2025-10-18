@@ -6,9 +6,10 @@ use App\Models\Budget;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Log;
 use App\Http\Requests\BudgetRequest;
-use App\Http\Requests\EditBudgetRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\BudgetResource;
+use App\Http\Requests\EditBudgetRequest;
+use App\Http\Resources\EditBudgetResource;
 use App\Http\Resources\ViewBudgetResource;
 
 class BudgetController extends Controller
@@ -88,17 +89,13 @@ class BudgetController extends Controller
     public function edit(string $id)
     {
         try {
-            $budget = Budget::select(
-                'budgets.id',
-                'categories.name as category_name',
-                'budgets.max_amount',
-                'budgets.frequency',
-            )
-                ->join('categories', 'budgets.category_id', '=', 'categories.id')
+            $budget = Budget::with('category')
                 ->where('budgets.id', $id)
                 ->where('budgets.user_id', Auth::user()->id)
                 ->firstOrFail();
+
             $this->authorize('view', $budget);
+            $budget = EditBudgetResource::make($budget);
 
             return response()->json([
                 'budget' => $budget,

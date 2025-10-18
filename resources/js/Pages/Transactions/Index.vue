@@ -27,8 +27,9 @@ const props = defineProps({
 const confirm = useConfirm();
 const toast = useToast();
 const visible = ref(false);
-const isCreateModalOpen = ref(false);
 const isViewModalOpen = ref(false);
+const isCreateModalOpen = ref(false);
+const isEditModalOpen = ref(false);
 const isLoading = ref(false);
 const categories = ref([]);
 const types = [
@@ -53,6 +54,33 @@ const form = useForm({
     date: '',
 });
 const viewTransaction = ref([]);
+
+// Form methods
+const resetForm = () => {
+    form.reset();
+};
+
+// Open and close create modal
+const openCreateModal = () => {
+    isCreateModalOpen.value = true;
+};
+
+const closeCreateModal = () => {
+    resetForm();
+    categories.value = [];
+
+    isCreateModalOpen.value = false;
+};
+
+const openEditModal = (id) => {
+    isEditModalOpen.value = true;
+};
+
+const closeEditModal = () => {
+    resetForm();
+
+    isEditModalOpen.value = false;
+};
 
 // Methods
 
@@ -109,30 +137,6 @@ const getTransaction = async (id) => {
     }
 };
 
-// Handle file selection
-const onSelectAttachment = (e) => {
-    const file = e.files ? e.files[0] : null;
-
-    form.attachment = file;
-};
-
-// Form methods
-const resetForm = () => {
-    form.reset();
-};
-
-// Open and close create modal
-const openCreateModal = () => {
-    isCreateModalOpen.value = true;
-};
-
-const closeCreateModal = () => {
-    resetForm();
-    categories.value = [];
-
-    isCreateModalOpen.value = false;
-};
-
 // Create a new transaction
 const createTransaction = () => {
     form.errors = {};
@@ -141,6 +145,34 @@ const createTransaction = () => {
             closeCreateModal();
         },
     });
+};
+
+// Get transaction for editing
+const getTransactionForEdit = async (id) => {
+    try {
+        const response = await axios.get(route('transactions.edit', id));
+
+        form.id = response.data.transaction.id;
+        form.amount = response.data.transaction.amount;
+        form.type = response.data.transaction.type;
+        await getCategories();
+        form.category = response.data.transaction.category;
+        form.description = response.data.transaction.description;
+        form.date = response.data.transaction.date;
+
+        openEditModal(id);
+
+        console.log(response.data.transaction);
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${error.response?.data?.message ?? 'An error occurred'}`,
+            life: 3000,
+        });
+
+        console.error(error);
+    }
 };
 
 // Confirm delete transaction
@@ -198,6 +230,12 @@ const deleteTransaction = async (id) => {
     }
 };
 
+// Handle file selection
+const onSelectAttachment = (e) => {
+    const file = e.files ? e.files[0] : null;
+
+    form.attachment = file;
+};
 // Vue methods
 onMounted(() => {
 });
@@ -227,6 +265,58 @@ onMounted(() => {
                 Your transactions
             </h2>
         </template>
+        <!-- View modal -->
+        <Modal :show="isViewModalOpen" :closeable="true" @close="isViewModalOpen = false">
+            <div class="m-5">
+                <!-- Title -->
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                    Transaction details
+                </h2>
+                <!-- Details -->
+                <div class="mt-3 space-y-4">
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Amount:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.amount }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Type:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.type }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Category:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.category }}</span>
+                    </div>
+                    <div v-if="viewTransaction.attachment_view" class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Attachment:</span>
+                        <a :href="viewTransaction.attachment_view" target="_blank"
+                            class="text-blue-500 hover:underline dark:text-blue-400">
+                            <Button label="View" icon="fa-solid fa-eye" severity="info" size="small" />
+                        </a>
+                        <a :href="viewTransaction.attachment_download" target="_blank"
+                            class="text-blue-500 hover:underline dark:text-blue-400">
+                            <Button label="Download" icon="fa-solid fa-download" severity="success" size="small"
+                                class="ml-2" />
+                        </a>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Description:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.description }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Date:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.date }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Created:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.created }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Last updated:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.updated }}</span>
+                    </div>
+                </div>
+            </div>
+        </Modal>
         <!-- Create modal -->
         <Modal :show="isCreateModalOpen" :closeable="!form.processing" @close="closeCreateModal">
             <div class="m-5">
@@ -288,56 +378,65 @@ onMounted(() => {
                 </form>
             </div>
         </Modal>
-        <!-- View modal -->
-        <Modal :show="isViewModalOpen" :closeable="true" @close="isViewModalOpen = false">
+        <!-- Edit modal -->
+        <Modal :show="isEditModalOpen" :closeable="!form.processing" @close="closeEditModal">
             <div class="m-5">
                 <!-- Title -->
                 <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Transaction details
+                    Edit transaction
                 </h2>
-                <!-- Details -->
-                <div class="mt-3 space-y-4">
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Amount:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.amount }}</span>
+                <!-- Form -->
+                <form @submit.prevent="updateTransaction" class="mt-3">
+                    <!-- Amount -->
+                    <InputLabel for="amount" value="Amount" />
+                    <InputText id="amount" v-model="form.amount" type="number" placeholder="Enter an amount"
+                        class="mt-1 block w-full" />
+                    <InputError :message="form.errors.amount" class="mt-2" />
+                    <!-- Type -->
+                    <InputLabel for="type" value="Type" class="mt-3" />
+                    <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label"
+                        placeholder="Select a type" class="mt-1 block w-full" appendTo="self" @change="getCategories" />
+                    <InputError :message="form.errors.type" class="mt-2" />
+                    <!-- Category -->
+                    <InputLabel for="category" value="Category" class="mt-3" />
+                    <Select id="category" v-model="form.category" :options="categories" optionValue="id"
+                        optionLabel="name" placeholder="Select a category"
+                        :disabled="categories.length === 0 || isLoading" :loading="isLoading" class="mt-1 block w-full"
+                        appendTo="self" />
+                    <InputError :message="form.errors.category" class="mt-2" />
+                    <small class="text-sm text-gray-500 dark:text-gray-400">
+                        Showing categories depending on the selected type.
+                    </small>
+                    <!-- Description -->
+                    <InputLabel for="description" value="Description" class="mt-3" />
+                    <Textarea id="description" v-model="form.description" placeholder="Enter a description"
+                        :autoResize="false" class="mt-1 block w-full" rows="3"></Textarea>
+                    <InputError :message="form.errors.description" class="mt-2" />
+                    <!-- Attachment -->
+                    <InputLabel for="attachment" value="File" class="mt-3" />
+                    <small class="text-sm text-gray-500 dark:text-gray-400">
+                        Attach a file (optional). Available formats: JPG, JPEG, PNG, WEBP, PDF
+                    </small>
+                    <FileUpload mode="basic" name="attachment" accept="image/*,application/pdf" :auto="false"
+                        chooseLabel="Select a file" :maxFileSize="2000000" @select="onSelectAttachment"
+                        class="mt-1 block w-full" />
+                    <InputError :message="form.errors.attachment" class="mt-2" />
+                    <!-- Date -->
+                    <InputLabel for="date" value="Date" class="mt-3" />
+                    <DatePicker id="date" v-model="form.date" dateFormat="mm/dd/yy" placeholder="Enter a date"
+                        class="mt-1 block w-full" />
+                    <InputError :message="form.errors.date" class="mt-2" />
+                    <!-- Buttons -->
+                    <div class="flex justify-end mt-5">
+                        <!-- Cancel button -->
+                        <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
+                            :disabled="form.processing" class="mr-2" @click="closeEditModal" />
+                        <!-- Submit button -->
+                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
+                            :disabled="!form.amount || !form.type || !form.category || !form.date || form.processing"
+                            :loading="form.processing" />
                     </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Type:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.type }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Category:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.category }}</span>
-                    </div>
-                    <div v-if="viewTransaction.attachment_view" class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Attachment:</span>
-                        <a :href="viewTransaction.attachment_view" target="_blank"
-                            class="text-blue-500 hover:underline dark:text-blue-400">
-                            <Button label="View" icon="fa-solid fa-eye" severity="info" size="small" />
-                        </a>
-                        <a :href="viewTransaction.attachment_download" target="_blank"
-                            class="text-blue-500 hover:underline dark:text-blue-400">
-                            <Button label="Download" icon="fa-solid fa-download" severity="success" size="small"
-                                class="ml-2" />
-                        </a>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Description:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.description }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Date:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.date }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Created:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.created }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Last updated:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewTransaction.updated }}</span>
-                    </div>
-                </div>
+                </form>
             </div>
         </Modal>
         <!-- Body -->
@@ -351,7 +450,8 @@ onMounted(() => {
                         <template #content>
                             <!-- DataTable -->
                             <DataTable :columns="columns" :onCreate="openCreateModal" :onView="getTransaction"
-                                :onDelete="confirmDeleteTransaction" :data="props.transactions">
+                                :onEdit="getTransactionForEdit" :onDelete="confirmDeleteTransaction"
+                                :data="props.transactions">
                             </DataTable>
                         </template>
                     </Card>

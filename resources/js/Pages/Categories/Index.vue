@@ -26,8 +26,9 @@ const props = defineProps({
 const confirm = useConfirm();
 const toast = useToast();
 const visible = ref(false);
-const isCreateModalOpen = ref(false);
 const isViewModalOpen = ref(false);
+const isCreateModalOpen = ref(false);
+const isEditModalOpen = ref(false);
 const types = [
     { value: 'expense', label: 'Expense' },
     { value: 'income', label: 'Income' },
@@ -43,6 +44,33 @@ const form = useForm({
     type: ''
 });
 const viewCategory = ref([]);
+
+// Form methods
+const resetForm = () => {
+    form.errors = {};
+    form.reset();
+};
+
+// Modal methods
+const openCreateModal = () => {
+    isCreateModalOpen.value = true;
+};
+
+const closeCreateModal = () => {
+    resetForm();
+
+    isCreateModalOpen.value = false;
+};
+
+const openEditModal = (id) => {
+    getCategoryForEdit(id);
+};
+
+const closeEditModal = () => {
+    resetForm();
+
+    isEditModalOpen.value = false;
+};
 
 // Methods
 const getCategory = async (id) => {
@@ -61,22 +89,6 @@ const getCategory = async (id) => {
     }
 };
 
-// Form methods
-const resetForm = () => {
-    form.errors = {};
-    form.reset();
-};
-
-const openCreateModal = () => {
-    isCreateModalOpen.value = true;
-};
-
-const closeCreateModal = () => {
-    resetForm();
-
-    isCreateModalOpen.value = false;
-};
-
 const createCategory = () => {
     form.errors = {};
     form.post(route('categories.store'), {
@@ -84,6 +96,24 @@ const createCategory = () => {
             closeCreateModal();
         },
     });
+};
+const getCategoryForEdit = async (id) => {
+    try {
+        const response = await axios.get(route('categories.edit', id));
+
+        form.id = response.data.category.id;
+        form.name = response.data.category.name;
+        form.type = response.data.category.type;
+
+        isEditModalOpen.value = true;
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${error.response?.data?.message ?? 'An error occurred'}`,
+            life: 3000,
+        });
+    }
 };
 
 // Confirm delete category
@@ -170,37 +200,6 @@ onMounted(() => {
                 Categories
             </h2>
         </template>
-        <!-- Create modal -->
-        <Modal :show="isCreateModalOpen" :closeable="!form.processing" @close="closeCreateModal">
-            <div class="m-5">
-                <!-- Title -->
-                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    New category
-                </h2>
-                <!-- Form -->
-                <form @submit.prevent="createCategory" class="mt-3">
-                    <!-- Name -->
-                    <InputLabel for="name" value="Name" />
-                    <InputText id="name" v-model="form.name" type="text" placeholder="Enter a name"
-                        class="mt-1 block w-full" />
-                    <InputError :message="form.errors.name" class="mt-2" />
-                    <!-- Type -->
-                    <InputLabel for="type" value="Type" class="mt-3" />
-                    <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label"
-                        placeholder="Select a type" class="mt-1 block w-full" appendTo="self" />
-                    <InputError :message="form.errors.type" class="mt-2" />
-                    <!-- Buttons -->
-                    <div class="flex justify-end mt-5">
-                        <!-- Cancel button -->
-                        <Button raised rounded label="Cancel" type="button" icon="fa-solid fa-rectangle-xmark"
-                            severity="danger" :disabled="form.processing" class="mr-2" @click="closeCreateModal" />
-                        <!-- Submit button -->
-                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
-                            :disabled="!form.name || !form.type || form.processing" :loading="form.processing" />
-                    </div>
-                </form>
-            </div>
-        </Modal>
         <!-- View modal -->
         <Modal :show="isViewModalOpen" :closeable="true" @close="isViewModalOpen = false">
             <div class="m-5">
@@ -233,6 +232,68 @@ onMounted(() => {
                 </div>
             </div>
         </Modal>
+        <!-- Create modal -->
+        <Modal :show="isCreateModalOpen" :closeable="!form.processing" @close="closeCreateModal">
+            <div class="m-5">
+                <!-- Title -->
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                    New category
+                </h2>
+                <!-- Form -->
+                <form @submit.prevent="createCategory" class="mt-3">
+                    <!-- Name -->
+                    <InputLabel for="name" value="Name" />
+                    <InputText id="name" v-model="form.name" type="text" placeholder="Enter a name"
+                        class="mt-1 block w-full" />
+                    <InputError :message="form.errors.name" class="mt-2" />
+                    <!-- Type -->
+                    <InputLabel for="type" value="Type" class="mt-3" />
+                    <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label"
+                        placeholder="Select a type" class="mt-1 block w-full" appendTo="self" />
+                    <InputError :message="form.errors.type" class="mt-2" />
+                    <!-- Buttons -->
+                    <div class="flex justify-end mt-5">
+                        <!-- Cancel button -->
+                        <Button raised rounded label="Cancel" type="button" icon="fa-solid fa-rectangle-xmark"
+                            severity="danger" :disabled="form.processing" class="mr-2" @click="closeCreateModal" />
+                        <!-- Submit button -->
+                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
+                            :disabled="!form.name || !form.type || form.processing" :loading="form.processing" />
+                    </div>
+                </form>
+            </div>
+        </Modal>
+        <!-- Edit modal -->
+        <Modal :show="isEditModalOpen" :closeable="!form.processing" @close="closeEditModal">
+            <div class="m-5">
+                <!-- Title -->
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                    Edit category
+                </h2>
+                <!-- Form -->
+                <form @submit.prevent="updateCategory" class="mt-3">
+                    <!-- Name -->
+                    <InputLabel for="name" value="Name" />
+                    <InputText id="name" v-model="form.name" type="text" placeholder="Enter a name"
+                        class="mt-1 block w-full" />
+                    <InputError :message="form.errors.name" class="mt-2" />
+                    <!-- Type -->
+                    <InputLabel for="type" value="Type" class="mt-3" />
+                    <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label"
+                        placeholder="Select a type" class="mt-1 block w-full" appendTo="self" />
+                    <InputError :message="form.errors.type" class="mt-2" />
+                    <!-- Buttons -->
+                    <div class="flex justify-end mt-5">
+                        <!-- Cancel button -->
+                        <Button raised rounded label="Cancel" type="button" icon="fa-solid fa-rectangle-xmark"
+                            severity="danger" :disabled="form.processing" class="mr-2" @click="closeEditModal" />
+                        <!-- Submit button -->
+                        <Button raised rounded label="Save" type="submit" icon="fa-solid fa-circle-plus"
+                            :disabled="!form.name || !form.type || form.processing" :loading="form.processing" />
+                    </div>
+                </form>
+            </div>
+        </Modal>
         <!-- Body -->
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -248,8 +309,8 @@ onMounted(() => {
                         <!-- Content -->
                         <template #content>
                             <!-- DataTable -->
-                            <DataTable :columns="columns" :onCreate="openCreateModal" :onView="getCategory"
-                                :onDelete="confirmDeleteCategory" :data="props.categories">
+                            <DataTable :columns="columns" :onView="getCategory" :onCreate="openCreateModal"
+                                :onEdit="openEditModal" :onDelete="confirmDeleteCategory" :data="props.categories">
                             </DataTable>
                         </template>
                     </Card>

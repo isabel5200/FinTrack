@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\TransactionRequest;
+use App\Http\Resources\EditTransactionResource;
 use App\Http\Resources\TransactionResource;
 use App\Http\Resources\ViewTransactionResource;
 
@@ -98,20 +99,12 @@ class TransactionController extends Controller
     public function edit(string $id)
     {
         try {
-            $transaction = Transaction::select(
-                'transactions.id',
-                'transactions.amount',
-                'transactions.type',
-                'categories.name as category_name',
-                'transactions.description',
-                'transactions.attachment',
-                'transactions.date',
-            )
-                ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            $transaction = Transaction::with('category')
                 ->where('transactions.id', $id)
                 ->where('transactions.user_id', Auth::user()->id)
                 ->firstOrFail();
-            $this->authorize('show', $transaction);
+            $this->authorize('view', $transaction);
+            $transaction = EditTransactionResource::make($transaction);
 
             return response()->json([
                 'transaction' => $transaction,

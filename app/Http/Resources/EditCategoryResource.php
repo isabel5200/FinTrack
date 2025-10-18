@@ -12,7 +12,7 @@ class EditCategoryResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'type' => ucfirst($this->type),
+            'type' => $this->type,
         ];
     }
 }

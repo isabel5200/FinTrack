@@ -24,8 +24,9 @@ const props = defineProps({
 const confirm = useConfirm();
 const toast = useToast();
 const visible = ref(false);
-const isCreateModalOpen = ref(false);
 const isViewModalOpen = ref(false);
+const isCreateModalOpen = ref(false);
+const isEditModalOpen = ref(false);
 const categories = ref([]);
 const frequencies = [
     { value: 'daily', label: 'Daily' },
@@ -46,12 +47,39 @@ const form = useForm({
 });
 const viewBudget = ref([]);
 
+const resetForm = () => {
+    form.errors = {};
+    form.reset();
+};
+
+const openCreateModal = () => {
+    getCategories();
+
+    isCreateModalOpen.value = true;
+};
+
+const closeCreateModal = () => {
+    resetForm();
+
+    isCreateModalOpen.value = false;
+};
+
+const openEditModal = (id) => {
+    getCategories();
+    getBudgetForEdit(id);
+};
+
+const closeEditModal = () => {
+    resetForm();
+
+    isEditModalOpen.value = false;
+};
+
 const getCategories = async () => {
     try {
         const response = await axios.get(route('categories.getCategories'));
 
         categories.value = response.data.categories;
-
         /*
         categories.value = response.data.categories.map(category => ({
             ...category,
@@ -88,23 +116,6 @@ const getBudget = async (id) => {
     }
 };
 
-const resetForm = () => {
-    form.errors = {};
-    form.reset();
-};
-
-const openCreateModal = () => {
-    getCategories();
-
-    isCreateModalOpen.value = true;
-};
-
-const closeCreateModal = () => {
-    resetForm();
-
-    isCreateModalOpen.value = false;
-};
-
 const createBudget = () => {
     form.errors = {};
     form.post(route('budgets.store'), {
@@ -112,6 +123,28 @@ const createBudget = () => {
             closeCreateModal();
         },
     });
+};
+
+const getBudgetForEdit = async (id) => {
+    try {
+        const response = await axios.get(route('budgets.edit', id));
+
+        form.id = response.data.budget.id;
+        form.category = response.data.budget.category;
+        form.max_amount = response.data.budget.max_amount;
+        form.frequency = response.data.budget.frequency;
+
+        isEditModalOpen.value = true;
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${error.response?.data?.message ?? 'An error occurred'}`,
+            life: 3000,
+        });
+
+        console.error(error);
+    }
 };
 
 // Confirm delete budget
@@ -197,6 +230,38 @@ onMounted(() => {
                 Budgets
             </h2>
         </template>
+        <!-- View modal -->
+        <Modal :show="isViewModalOpen" :closeable="true" @close="isViewModalOpen = false">
+            <div class="m-5">
+                <!-- Title -->
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                    Budget details
+                </h2>
+                <!-- Details -->
+                <div class="mt-3 space-y-4">
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Category:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.category }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Max Amount:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.max_amount }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Frequency:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.frequency }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Created:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.created }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Last updated:</span>
+                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.updated }}</span>
+                    </div>
+                </div>
+            </div>
+        </Modal>
         <!-- Create modal -->
         <Modal :show="isCreateModalOpen" :closeable="!form.processing" @close="closeCreateModal">
             <div class="m-5">
@@ -238,36 +303,45 @@ onMounted(() => {
                 </form>
             </div>
         </Modal>
-        <!-- View modal -->
-        <Modal :show="isViewModalOpen" :closeable="true" @close="isViewModalOpen = false">
+        <!-- Edit modal -->
+        <Modal :show="isEditModalOpen" :closeable="!form.processing" @close="closeEditModal">
             <div class="m-5">
                 <!-- Title -->
                 <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Budget details
+                    Edit budget
                 </h2>
-                <!-- Details -->
-                <div class="mt-3 space-y-4">
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Category:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.category }}</span>
+                <!-- Form -->
+                <form @submit.prevent="updateBudget" class="mt-3">
+                    <!-- Category -->
+                    <InputLabel for="category" value="Category" />
+                    <Select id="category" v-model="form.category" :options="categories" optionValue="id"
+                        optionLabel="name" placeholder="Select a category" class="mt-1 block w-full" appendTo="self" />
+                    <small class="text-sm text-gray-500 dark:text-gray-400">
+                        Showing categories with type "Expense" only.
+                    </small>
+                    <InputError :message="form.errors.category" class="mt-2" />
+                    <!-- Max amount -->
+                    <InputLabel for="max_amount" value="Max amount" class="mt-3" />
+                    <InputText id="max_amount" v-model="form.max_amount" type="number" placeholder="Enter a max amount"
+                        class="mt-1 block w-full" />
+                    <InputError :message="form.errors.max_amount" class="mt-2" />
+                    <!-- Frequency -->
+                    <InputLabel for="frequency" value="Frequency" class="mt-3" />
+                    <Select id="frequency" v-model="form.frequency" :options="frequencies" optionValue="value"
+                        optionLabel="label" placeholder="Select a frequency" class="mt-1 block w-full"
+                        appendTo="self" />
+                    <InputError :message="form.errors.frequency" class="mt-2" />
+                    <!-- Buttons -->
+                    <div class="flex justify-end mt-5">
+                        <!-- Cancel button  -->
+                        <Button raised rounded label="Cancel" icon="fa-solid fa-floppy-disk" severity="danger"
+                            :disabled="form.processing" class="mr-2" @click="closeEditModal" />
+                        <!-- Submit button -->
+                        <Button raised rounded label="Save" type="submit" icon="fa-solid fa-circle-plus"
+                            :disabled="!form.category || !form.max_amount || !form.frequency || form.processing"
+                            :loading="form.processing" />
                     </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Max Amount:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.max_amount }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Frequency:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.frequency }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Created:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.created }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300 w-32">Last updated:</span>
-                        <span class="text-gray-900 dark:text-gray-100">{{ viewBudget.updated }}</span>
-                    </div>
-                </div>
+                </form>
             </div>
         </Modal>
         <!-- Body -->
@@ -280,8 +354,9 @@ onMounted(() => {
                         <!-- Content -->
                         <template #content>
                             <!-- DataTable -->
-                            <DataTable :columns="columns" :onCreate="openCreateModal" :onView="getBudget"
-                                :onDelete="confirmDeleteBudget" :data="props.budgets"></DataTable>
+                            <DataTable :columns="columns" :onView="getBudget" :onCreate="openCreateModal"
+                                :onEdit="openEditModal" :onDelete="confirmDeleteBudget" :data="props.budgets">
+                            </DataTable>
                         </template>
                     </Card>
                 </div>

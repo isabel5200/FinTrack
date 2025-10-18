@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -11,14 +12,14 @@ class EditTransactionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'amount' => '$' . number_format($this->amount, 2),
-            'type' => ucfirst($this->type),
-            'category' => $this->category_name,
+            'amount' => $this->amount,
+            'type' => $this->type,
+            'category' => $this->category->id,
             'description' => $this->description,
             'attachment' => $this->attachment
                 ? route('transactions.viewFile', ['transaction' => $this->id])
                 : null,
-            'date' => $this->date,
+            'date' => Carbon::parse($this->date)->format('m/d/Y'),
         ];
     }
 }
