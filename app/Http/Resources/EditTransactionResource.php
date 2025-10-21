@@ -16,9 +16,10 @@ class EditTransactionResource extends JsonResource
             'type' => $this->type,
             'category' => $this->category->id,
             'description' => $this->description,
-            'attachment' => $this->attachment
-                ? route('transactions.viewFile', ['transaction' => $this->id])
-                : null,
+            'attachment' => $this->attachment ? [
+                'name' => basename($this->attachment),
+                'url'  => route('transactions.viewFile', ['transaction' => $this->id]),
+            ] : null,
             'date' => Carbon::parse($this->date)->format('m/d/Y'),
         ];
     }

@@ -30,6 +30,8 @@ const visible = ref(false);
 const isViewModalOpen = ref(false);
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
+const selectedAttachment = ref(null)
+const attachmentRemoved = ref(false)
 const isLoading = ref(false);
 const categories = ref([]);
 const types = [
@@ -158,11 +160,13 @@ const getTransactionForEdit = async (id) => {
         await getCategories();
         form.category = response.data.transaction.category;
         form.description = response.data.transaction.description;
+        form.attachment = response.data.transaction.attachment;
         form.date = response.data.transaction.date;
 
-        openEditModal(id);
+        attachmentRemoved.value = false;
+        selectedAttachment.value = null;
 
-        console.log(response.data.transaction);
+        openEditModal(id);
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -232,10 +236,18 @@ const deleteTransaction = async (id) => {
 
 // Handle file selection
 const onSelectAttachment = (e) => {
-    const file = e.files ? e.files[0] : null;
+    const file = e.files ? e.files[0] : null
 
-    form.attachment = file;
+    selectedAttachment.value = file;
+    attachmentRemoved.value = false;
 };
+
+const removeAttachment = () => {
+    attachmentRemoved.value = true
+    form.attachment = null
+    selectedAttachment.value = null
+};
+
 // Vue methods
 onMounted(() => {
 });
@@ -417,9 +429,31 @@ onMounted(() => {
                     <small class="text-sm text-gray-500 dark:text-gray-400">
                         Attach a file (optional). Available formats: JPG, JPEG, PNG, WEBP, PDF
                     </small>
-                    <FileUpload mode="basic" name="attachment" accept="image/*,application/pdf" :auto="false"
-                        chooseLabel="Select a file" :maxFileSize="2000000" @select="onSelectAttachment"
-                        class="mt-1 block w-full" />
+                    <!-- If there's an attachment, show its details -->
+                    <div v-if="form.attachment"
+                        class="mt-2 p-3 border rounded-md bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">
+                                Current file: <strong>{{ form.attachment.name }}</strong>
+                            </p>
+                            <div class="flex gap-3 mt-1">
+                                <a :href="form.attachment.url" target="_blank"
+                                    class="text-blue-600 hover:underline text-sm">
+                                    View
+                                </a>
+                                <button type="button" class="text-red-600 hover:underline text-sm"
+                                    @click="removeAttachment">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Show upload input only if there's no file or user removed it -->
+                    <div v-if="!form.attachment || attachmentRemoved">
+                        <FileUpload mode="basic" name="attachment" accept="image/*,application/pdf" :auto="false"
+                            chooseLabel="Select a file" :maxFileSize="2000000" @select="onSelectAttachment"
+                            class="mt-3 block w-full" />
+                    </div>
                     <InputError :message="form.errors.attachment" class="mt-2" />
                     <!-- Date -->
                     <InputLabel for="date" value="Date" class="mt-3" />
@@ -432,7 +466,7 @@ onMounted(() => {
                         <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
                             :disabled="form.processing" class="mr-2" @click="closeEditModal" />
                         <!-- Submit button -->
-                        <Button raised rounded label="Create" type="submit" icon="fa-solid fa-circle-plus"
+                        <Button raised rounded label="Save" type="submit" icon="fa-solid fa-floppy-disk"
                             :disabled="!form.amount || !form.type || !form.category || !form.date || form.processing"
                             :loading="form.processing" />
                     </div>

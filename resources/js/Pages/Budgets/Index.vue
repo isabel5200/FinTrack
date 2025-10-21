@@ -334,10 +334,10 @@ onMounted(() => {
                     <!-- Buttons -->
                     <div class="flex justify-end mt-5">
                         <!-- Cancel button  -->
-                        <Button raised rounded label="Cancel" icon="fa-solid fa-floppy-disk" severity="danger"
+                        <Button raised rounded label="Cancel" icon="fa-solid fa-rectangle-xmark" severity="danger"
                             :disabled="form.processing" class="mr-2" @click="closeEditModal" />
                         <!-- Submit button -->
-                        <Button raised rounded label="Save" type="submit" icon="fa-solid fa-circle-plus"
+                        <Button raised rounded label="Save" type="submit" icon="fa-solid fa-floppy-disk"
                             :disabled="!form.category || !form.max_amount || !form.frequency || form.processing"
                             :loading="form.processing" />
                     </div>
