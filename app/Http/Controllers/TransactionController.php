@@ -7,9 +7,11 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\TransactionRequest;
-use App\Http\Resources\EditTransactionResource;
 use App\Http\Resources\TransactionResource;
+use App\Http\Requests\UpdateTransactionRequest;
+use App\Http\Resources\EditTransactionResource;
 use App\Http\Resources\ViewTransactionResource;
 
 class TransactionController extends Controller
@@ -117,9 +119,48 @@ class TransactionController extends Controller
         }
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateTransactionRequest $request, string $id)
     {
-        //
+        try {
+            $transaction = Transaction::where('id', $id)
+                ->where('user_id', Auth::user()->id)
+                ->firstOrFail();
+
+            $this->authorize('update', $transaction);
+
+            $data = $request->validated();
+            $data['category_id'] = $data['category'];
+            $data['date'] = Carbon::parse($data['date'])->toDateString();
+
+            // If user wants to remove the existing attachment
+            if ($request->boolean('remove_attachment') && $transaction->attachment) {
+                Storage::delete($transaction->attachment);
+
+                $data['attachment'] = null;
+            }
+
+            // If user wants to upload a new attachment
+            if ($request->hasFile('attachment')) {
+                if ($transaction->attachment) {
+                    Storage::delete($transaction->attachment);
+                }
+
+                $userId = Auth::user()->id;
+                $path = $request->file('attachment')->store("attachments/user_{$userId}");
+                $data['attachment'] = $path;
+            }
+
+            $transaction->update($data);
+
+            return response()->json([
+                'message' => 'Transaction updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the transaction',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy(string $id)

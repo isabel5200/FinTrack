@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\EditCategoryResource;
 use App\Http\Resources\ViewCategoryResource;
@@ -116,9 +117,26 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCategoryRequest $request, string $id)
     {
-        //
+        try {
+            $category = Category::where('id', $id)
+                ->where('user_id', Auth::user()->id)
+                ->firstOrFail();
+
+            $this->authorize('update', $category);
+            $data = $request->validated();
+            $category->update($data);
+
+            return response()->json([
+                'message' => 'Category updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the category',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

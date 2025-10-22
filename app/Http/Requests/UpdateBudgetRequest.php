@@ -6,7 +6,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
-class EditBudgetRequest extends FormRequest
+class UpdateBudgetRequest extends FormRequest
 {
     public function authorize(): bool
     {

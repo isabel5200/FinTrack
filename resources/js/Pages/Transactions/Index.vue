@@ -53,6 +53,7 @@ const form = useForm({
     category: '',
     description: '',
     attachment: null,
+    remove_attachment: false,
     date: '',
 });
 const viewTransaction = ref([]);

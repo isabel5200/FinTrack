@@ -288,7 +288,7 @@ onMounted(() => {
                         <Button raised rounded label="Cancel" type="button" icon="fa-solid fa-rectangle-xmark"
                             severity="danger" :disabled="form.processing" class="mr-2" @click="closeEditModal" />
                         <!-- Submit button -->
-                        <Button raised rounded label="Save" type="submit" icon="fa-solid fa-circle-plus"
+                        <Button raised rounded label="Save" type="submit" icon="fa-solid fa-floppy-disk"
                             :disabled="!form.name || !form.type || form.processing" :loading="form.processing" />
                     </div>
                 </form>

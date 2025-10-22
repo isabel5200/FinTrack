@@ -9,6 +9,7 @@ use App\Http\Requests\BudgetRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\BudgetResource;
 use App\Http\Requests\EditBudgetRequest;
+use App\Http\Requests\UpdateBudgetRequest;
 use App\Http\Resources\EditBudgetResource;
 use App\Http\Resources\ViewBudgetResource;
 
@@ -69,8 +70,8 @@ class BudgetController extends Controller
     {
         try {
             $budget = Budget::with('category')
-            ->where('id', $id)
-            ->firstOrFail();
+                ->where('id', $id)
+                ->firstOrFail();
 
             $this->authorize('view', $budget);
             $budget = ViewBudgetResource::make($budget);
@@ -108,18 +109,19 @@ class BudgetController extends Controller
         }
     }
 
-    public function update(EditBudgetRequest $request, string $id)
+    public function update(UpdateBudgetRequest $request, string $id)
     {
         try {
-            $data = $request->validated();
-            $budget = Budget::where('id', $id)->firstOrFail();
+            $budget = Budget::where('id', $id)
+                ->where('user_id', Auth::user()->id)
+                ->firstOrFail();
 
             $this->authorize('update', $budget);
-
+            $data = $request->validated();
             $budget->update($data);
 
             return response()->json([
-                'message' => 'Budget updated successfully'
+                'message' => 'Budget updated successfully',
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -139,7 +141,7 @@ class BudgetController extends Controller
             $budget->delete();
 
             return response()->json([
-                'message' => 'Budget deleted successfully'
+                'message' => 'Budget deleted successfully',
             ]);
         } catch (\Exception $e) {
             return response()->json([
