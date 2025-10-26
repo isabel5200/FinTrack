@@ -55,6 +55,7 @@ class TransactionController extends Controller
     {
         try {
             $data = $request->validated();
+            dd($data);
             $data['category_id'] = $data['category'];
             $data['date'] = Carbon::parse($data['date'])->toDateString();
             $userId = Auth::user()->id;
@@ -150,17 +151,20 @@ class TransactionController extends Controller
                 $data['attachment'] = $path;
             }
 
+            if (!$request->hasFile('attachment') && !$request->boolean('remove_attachment')) {
+                unset($data['attachment']);
+            }
+
             $transaction->update($data);
 
-            return response()->json([
-                'message' => 'Transaction updated successfully'
-            ]);
+            return redirect()
+                ->route('transactions.index')
+                ->with('success', 'Transaction updated successfully');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while updating the transaction',
-                'error' => $e->getMessage()
-            ], 500);
+            session()->flash('error', 'An error occurred while updating the transaction');
         }
+
+        return redirect()->back();
     }
 
     public function destroy(string $id)

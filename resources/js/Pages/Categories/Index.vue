@@ -116,6 +116,15 @@ const getCategoryForEdit = async (id) => {
     }
 };
 
+const updateCategory = () => {
+    form.errors = {};
+    form.put(route('categories.update', form.id), {
+        onSuccess: () => {
+            closeEditModal();
+        },
+    });
+};
+
 // Confirm delete category
 const confirmDeleteCategory = (id) => {
     confirm.require({

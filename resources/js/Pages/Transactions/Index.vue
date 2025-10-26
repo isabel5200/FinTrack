@@ -30,8 +30,8 @@ const visible = ref(false);
 const isViewModalOpen = ref(false);
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
-const selectedAttachment = ref(null)
 const attachmentRemoved = ref(false)
+const currentAttachment = ref(null);
 const isLoading = ref(false);
 const categories = ref([]);
 const types = [
@@ -143,6 +143,16 @@ const getTransaction = async (id) => {
 // Create a new transaction
 const createTransaction = () => {
     form.errors = {};
+
+    console.log('Form data before creation:', {
+        amount: form.amount,
+        type: form.type,
+        category: form.category,
+        description: form.description,
+        date: form.date,
+        attachment: form.attachment,
+    });
+
     form.post(route('transactions.store'), {
         onSuccess: () => {
             closeCreateModal();
@@ -161,11 +171,10 @@ const getTransactionForEdit = async (id) => {
         await getCategories();
         form.category = response.data.transaction.category;
         form.description = response.data.transaction.description;
-        form.attachment = response.data.transaction.attachment;
         form.date = response.data.transaction.date;
 
+        currentAttachment.value = response.data.transaction.attachment;
         attachmentRemoved.value = false;
-        selectedAttachment.value = null;
 
         openEditModal(id);
     } catch (error) {
@@ -178,6 +187,17 @@ const getTransactionForEdit = async (id) => {
 
         console.error(error);
     }
+};
+
+const updateTransaction = () => {
+    form.errors = {};
+    form.remove_attachment = attachmentRemoved.value;
+
+    form.post(route('transactions.update', form.id), {
+        onSuccess: () => {
+            closeEditModal();
+        },
+    });
 };
 
 // Confirm delete transaction
@@ -239,14 +259,16 @@ const deleteTransaction = async (id) => {
 const onSelectAttachment = (e) => {
     const file = e.files ? e.files[0] : null
 
-    selectedAttachment.value = file;
-    attachmentRemoved.value = false;
+    if (file) {
+        form.attachment = e.files[0];
+        attachmentRemoved.value = false;
+    }
 };
 
+// Cuando el usuario elimina el archivo actual
 const removeAttachment = () => {
-    attachmentRemoved.value = true
-    form.attachment = null
-    selectedAttachment.value = null
+    attachmentRemoved.value = true;
+    form.current_attachment = null;
 };
 
 // Vue methods
@@ -430,15 +452,18 @@ onMounted(() => {
                     <small class="text-sm text-gray-500 dark:text-gray-400">
                         Attach a file (optional). Available formats: JPG, JPEG, PNG, WEBP, PDF
                     </small>
-                    <!-- If there's an attachment, show its details -->
-                    <div v-if="form.attachment"
+                    <!-- Si hay un archivo actual y no fue removido -->
+                    <div v-if="currentAttachment && !attachmentRemoved"
                         class="mt-2 p-3 border rounded-md bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
                         <div>
                             <p class="text-sm text-gray-700 dark:text-gray-300">
-                                Current file: <strong>{{ form.attachment.name }}</strong>
+                                Current file:
+                                <strong>
+                                    {{ currentAttachment.name }}
+                                </strong>
                             </p>
                             <div class="flex gap-3 mt-1">
-                                <a :href="form.attachment.url" target="_blank"
+                                <a :href="currentAttachment.url" target="_blank"
                                     class="text-blue-600 hover:underline text-sm">
                                     View
                                 </a>
@@ -449,8 +474,8 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-                    <!-- Show upload input only if there's no file or user removed it -->
-                    <div v-if="!form.attachment || attachmentRemoved">
+                    <!-- Mostrar input solo si no hay archivo actual o si el usuario lo quitó -->
+                    <div v-if="!currentAttachment || attachmentRemoved">
                         <FileUpload mode="basic" name="attachment" accept="image/*,application/pdf" :auto="false"
                             chooseLabel="Select a file" :maxFileSize="2000000" @select="onSelectAttachment"
                             class="mt-3 block w-full" />
@@ -469,7 +494,7 @@ onMounted(() => {
                         <!-- Submit button -->
                         <Button raised rounded label="Save" type="submit" icon="fa-solid fa-floppy-disk"
                             :disabled="!form.amount || !form.type || !form.category || !form.date || form.processing"
-                            :loading="form.processing" />
+                            :loading="form.processing" @click="updateTransaction" />
                     </div>
                 </form>
             </div>

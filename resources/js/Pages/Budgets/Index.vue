@@ -147,6 +147,15 @@ const getBudgetForEdit = async (id) => {
     }
 };
 
+const updateBudget = () => {
+    form.errors = {};
+    form.put(route('budgets.update', form.id), {
+        onSuccess: () => {
+            closeEditModal();
+        },
+    });
+};
+
 // Confirm delete budget
 const confirmDeleteBudget = (id) => {
     confirm.require({

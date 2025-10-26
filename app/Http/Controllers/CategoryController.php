@@ -126,17 +126,19 @@ class CategoryController extends Controller
 
             $this->authorize('update', $category);
             $data = $request->validated();
+
+            // Check if there are budgets associated with this category when changing type
+
             $category->update($data);
 
-            return response()->json([
-                'message' => 'Category updated successfully'
-            ]);
+            return redirect()
+                ->route('categories.index')
+                ->with('success', 'Category updated successfully');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while updating the category',
-                'error' => $e->getMessage()
-            ], 500);
+            session()->flash('error', 'An error occurred while updating the category');
         }
+
+        return redirect()->back();
     }
 
     /**

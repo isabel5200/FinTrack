@@ -120,15 +120,14 @@ class BudgetController extends Controller
             $data = $request->validated();
             $budget->update($data);
 
-            return response()->json([
-                'message' => 'Budget updated successfully',
-            ]);
+            return redirect()
+                ->route('budgets.index')
+                ->with('success', 'Budget created successfully');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while updating the budget',
-                'error' => $e->getMessage()
-            ], 500);
+            session()->flash('error', 'An error occurred while updating the budget');
         }
+
+        return redirect()->back();
     }
 
     public function destroy(string $id)

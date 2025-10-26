@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     // Transactions
     Route::resource('/transactions', TransactionController::class);
+    Route::post('/transactions/{id}', [TransactionController::class, 'update'])->name('transactions.update');
 
     // Attachments
     Route::get('/transactions/{transaction}/view', [TransactionController::class, 'viewFile'])->name('transactions.viewFile');

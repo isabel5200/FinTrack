@@ -26,8 +26,8 @@ class UpdateTransactionRequest extends FormRequest
                 }),
             ],
             'description' => 'nullable|string|max:255',
-            'attachment' => 'sometimes|nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:2048',
-            'remove_attachment' => 'sometimes|boolean',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:2048',
+            'remove_attachment' => 'nullable|boolean',
             'date' => 'required|date',
         ];
     }
