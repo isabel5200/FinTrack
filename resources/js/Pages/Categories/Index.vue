@@ -29,6 +29,8 @@ const visible = ref(false);
 const isViewModalOpen = ref(false);
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
+const hasBudgets = ref(false);
+const hasTransactions = ref(false);
 const types = [
     { value: 'expense', label: 'Expense' },
     { value: 'income', label: 'Income' },
@@ -49,6 +51,8 @@ const viewCategory = ref([]);
 const resetForm = () => {
     form.errors = {};
     form.reset();
+    hasBudgets.value = false;
+    hasTransactions.value = false;
 };
 
 // Modal methods
@@ -97,6 +101,7 @@ const createCategory = () => {
         },
     });
 };
+
 const getCategoryForEdit = async (id) => {
     try {
         const response = await axios.get(route('categories.edit', id));
@@ -104,6 +109,8 @@ const getCategoryForEdit = async (id) => {
         form.id = response.data.category.id;
         form.name = response.data.category.name;
         form.type = response.data.category.type;
+        hasBudgets.value = response.data.hasBudgets;
+        hasTransactions.value = response.data.hasTransactions;
 
         isEditModalOpen.value = true;
     } catch (error) {
@@ -116,12 +123,46 @@ const getCategoryForEdit = async (id) => {
     }
 };
 
+const checkHasBudgets = () => {
+    if (hasBudgets.value) {
+        return
+    } else {
+        form.errors.type = null;
+    }
+}
+
 const updateCategory = () => {
     form.errors = {};
-    form.put(route('categories.update', form.id), {
-        onSuccess: () => {
-            closeEditModal();
+
+    const sendRequest = () => {
+        form.put(route('categories.update', form.id), {
+            onSuccess: closeEditModal,
+        });
+    };
+
+    if (!hasBudgets.value) {
+        sendRequest();
+        return;
+    }
+
+    confirm.require({
+        message: 'This category is associated with existing budgets. Changing the type may delete those budgets. Do you want to proceed?',
+        header: 'Confirmation',
+        icon: 'fa-solid fa-triangle-exclamation',
+        rejectLabel: 'Cancel',
+        rejectProps: {
+            severity: 'secondary',
+            outlined: true,
+            raised: true,
+            rounded: true,
         },
+        acceptProps: {
+            label: 'Proceed',
+            severity: 'danger',
+            raised: true,
+            rounded: true,
+        },
+        accept: sendRequest,
     });
 };
 
@@ -289,8 +330,12 @@ onMounted(() => {
                     <!-- Type -->
                     <InputLabel for="type" value="Type" class="mt-3" />
                     <Select id="type" v-model="form.type" :options="types" optionValue="value" optionLabel="label"
-                        placeholder="Select a type" class="mt-1 block w-full" appendTo="self" />
+                        placeholder="Select a type" class="mt-1 block w-full" appendTo="self"
+                        :disabled="hasTransactions" />
                     <InputError :message="form.errors.type" class="mt-2" />
+                    <InputError v-if="hasTransactions"
+                        message="This category is associated with existing transactions and cannot be changed."
+                        class="mt-2" />
                     <!-- Buttons -->
                     <div class="flex justify-end mt-5">
                         <!-- Cancel button -->

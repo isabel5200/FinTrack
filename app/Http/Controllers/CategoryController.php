@@ -103,8 +103,14 @@ class CategoryController extends Controller
             $this->authorize('view', $category);
             $category = EditCategoryResource::make($category);
 
+            // Verify if the category has associated budgets or transactions
+            $hasBudgets = $category->budgets()->exists();
+            $hasTransactions = $category->transactions()->exists();
+
             return response()->json([
                 'category' => $category,
+                'hasBudgets' => $hasBudgets,
+                'hasTransactions' => $hasTransactions,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -128,6 +134,15 @@ class CategoryController extends Controller
             $data = $request->validated();
 
             // Check if there are budgets associated with this category when changing type
+            if ($category->type !== $data['type']) {
+                if ($category->transactions()->exists()) {
+                    session()->flash('error', 'Cannot change category type because there are transactions associated with it.');
+                }
+
+                if ($category->budgets()->exists()) {
+                    $category->budgets()->delete();
+                }
+            }
 
             $category->update($data);
 
