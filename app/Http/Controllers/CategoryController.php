@@ -6,9 +6,9 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\CategoryRequest;
-use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
+use App\Http\Requests\CreateCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\EditCategoryResource;
 use App\Http\Resources\ViewCategoryResource;
 
@@ -51,7 +51,7 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CategoryRequest $request)
+    public function store(CreateCategoryRequest $request)
     {
         try {
             $data = $request->validated();

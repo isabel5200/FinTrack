@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
+use App\Http\Requests\CreateTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Http\Resources\EditTransactionResource;
 use App\Http\Resources\ViewTransactionResource;
@@ -51,7 +51,7 @@ class TransactionController extends Controller
         //
     }
 
-    public function store(TransactionRequest $request)
+    public function store(CreateTransactionRequest $request)
     {
         try {
             $data = $request->validated();

@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Budget;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Log;
-use App\Http\Requests\BudgetRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\BudgetResource;
-use App\Http\Requests\EditBudgetRequest;
+use App\Http\Requests\CreateBudgetRequest;
 use App\Http\Requests\UpdateBudgetRequest;
 use App\Http\Resources\EditBudgetResource;
 use App\Http\Resources\ViewBudgetResource;
@@ -47,7 +46,7 @@ class BudgetController extends Controller
         //
     }
 
-    public function store(BudgetRequest $request)
+    public function store(CreateBudgetRequest $request)
     {
         try {
             $data = $request->validated();
