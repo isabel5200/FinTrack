@@ -1,6 +1,15 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
+
+const props = defineProps({
+    totals: {
+        type: Object,
+        required: true
+    }
+});
+
+console.log('Totales desde Laravel:', props.totals)
 </script>
 
 <template>

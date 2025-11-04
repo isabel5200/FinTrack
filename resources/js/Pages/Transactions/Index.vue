@@ -144,15 +144,6 @@ const getTransaction = async (id) => {
 const createTransaction = () => {
     form.errors = {};
 
-    console.log('Form data before creation:', {
-        amount: form.amount,
-        type: form.type,
-        category: form.category,
-        description: form.description,
-        date: form.date,
-        attachment: form.attachment,
-    });
-
     form.post(route('transactions.store'), {
         onSuccess: () => {
             closeCreateModal();

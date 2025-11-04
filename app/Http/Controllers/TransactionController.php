@@ -55,7 +55,6 @@ class TransactionController extends Controller
     {
         try {
             $data = $request->validated();
-            dd($data);
             $data['category_id'] = $data['category'];
             $data['date'] = Carbon::parse($data['date'])->toDateString();
             $userId = Auth::user()->id;

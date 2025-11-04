@@ -29,7 +29,7 @@ class CategoryController extends Controller
             return inertia('Categories/Index', [
                 'categories' => $categories,
                 // 'flash' => [
-                //     'success' => 'Categorías cargadas correctamente.',
+                //     'success' => 'Categories loaded successfully.',
                 // ],
             ]);
         } catch (\Exception $e) {
