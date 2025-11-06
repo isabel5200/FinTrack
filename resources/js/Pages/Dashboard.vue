@@ -6,10 +6,26 @@ const props = defineProps({
     totals: {
         type: Object,
         required: true
+    },
+    expensesByCategory: {
+        type: Object,
+        required: true
+    },
+    incomeExpenseTrend: {
+        type: Object,
+        required: true
+    },
+    monthlyComparison: {
+        type: Object,
+        required: true
+    },
+    budgetProgress: {
+        type: Object,
+        required: true
     }
 });
 
-console.log('Totales desde Laravel:', props.totals)
+console.log('Charts:', props);
 </script>
 
 <template>
