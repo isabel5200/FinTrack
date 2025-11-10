@@ -19,7 +19,6 @@ class DashboardController extends Controller
             $monthlyComparison = $this->getMonthlyComparison($userId);
             $budgetProgress = $this->getBudgetProgress($userId);
 
-
             return inertia('Dashboard', [
                 'totals' => $totals,
                 'expensesByCategory' => $expensesByCategory,
@@ -82,12 +81,12 @@ class DashboardController extends Controller
         $trend = DB::table('transactions AS t')
             ->selectRaw("
             YEAR(t.date) AS year,
-            MONTHNAME(t.date) AS month_name,
+            MONTH(t.date) AS month,
             ROUND(SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE 0 END), 2)  AS total_income,
             ROUND(SUM(CASE WHEN t.type = 'expense' THEN t.amount ELSE 0 END), 2) AS total_expense
             ")
             ->where('t.user_id', $userId)
-            ->groupBy(DB::raw('YEAR(t.date), MONTH(t.date), MONTHNAME(t.date)'))
+            ->groupBy(DB::raw('YEAR(t.date), MONTH(t.date), MONTH(t.date)'))
             ->orderByRaw('YEAR(t.date), MONTH(t.date)')
             ->get();
 
@@ -99,12 +98,12 @@ class DashboardController extends Controller
         $comparison = DB::table('transactions AS t')
             ->selectRaw("
             YEAR(t.date) AS year,
-            MONTHNAME(t.date) AS month_name,
+            MONTH(t.date) AS month,
             ROUND(SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE 0 END), 2)  AS total_income,
             ROUND(SUM(CASE WHEN t.type = 'expense' THEN t.amount ELSE 0 END), 2) AS total_expense
             ")
             ->where('t.user_id', $userId)
-            ->groupBy(DB::raw('YEAR(t.date), MONTH(t.date), MONTHNAME(t.date)'))
+            ->groupBy(DB::raw('YEAR(t.date), MONTH(t.date), MONTH(t.date)'))
             ->orderByRaw('YEAR(t.date), MONTH(t.date)')
             ->get();
 
