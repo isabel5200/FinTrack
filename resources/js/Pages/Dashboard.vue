@@ -2,6 +2,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import VueApexCharts from "vue3-apexcharts";
+import { useCharts } from '@/Composables/useCharts';
+import { ref, watch } from 'vue';
+
+const { chartData } = useCharts();
 
 const props = defineProps({
     totals: {
@@ -27,195 +31,98 @@ const props = defineProps({
 });
 
 const apexchart = VueApexCharts;
+const hasExpensesData = ref(false);
 
-const expenses = Array.isArray(props.expensesByCategory)
-    ? props.expensesByCategory
-    : Object.values(props.expensesByCategory);
+console.log('Totals: ', props.totals);
+console.log('expensesByCategory: ', props.expensesByCategory);
+console.log('incomeExpenseTrend: ', props.incomeExpenseTrend);
+console.log('monthlyComparison: ', props.monthlyComparison);
+console.log('budgetProgress: ', props.budgetProgress);
 
-const series = expenses.map(item => parseFloat(item.percentage));
-const labels = expenses.map(item => item.category_name);
-const hasData = series.length > 0 && series.some(val => val > 0);
+watch(() => props.expensesByCategory, (newVal) => {
+    const data = Array.isArray(newVal) ? newVal : [];
+    const series = data.map(item => parseFloat(item.percentage));
+    const labels = data.map(item => item.category_name);
+    const hasData = series.length > 0 && series.some(val => val > 0);
 
-const data = {
-    series: hasData ? series : [100], // Pie necesita algo mayor a 0
-    chartOptions: {
-        chart: {
-            width: 380,
-            type: 'pie',
-            background: 'transparent',
-        },
-        labels: hasData ? labels : ['Sin datos'],
+    hasExpensesData.value = hasData;
+
+    chartData.value.expensesByCategory.series = hasData ? series : [100];
+    chartData.value.expensesByCategory.options = {
+        ...chartData.value.expensesByCategory.options,
+        labels: hasData ? labels : ['No data'],
         colors: hasData ? undefined : ['#e0e0e0'],
-        legend: {
-            show: hasData,
-            position: 'bottom',
-        },
+        tooltip: { enabled: hasData },
+        legend: { show: hasData },
+        dataLabels: { enabled: hasData },
+        plotOptions: { pie: { expandOnClick: hasData } },
+    };
+}, { immediate: true });
+
+watch(() => props.incomeExpenseTrend, (newVal) => {
+    const data = Array.isArray(newVal) ? newVal : [];
+    const expenses = new Array(12).fill(0);
+    const incomes = new Array(12).fill(0);
+
+    data.forEach(item => {
+        const idx = item.month - 1;
+
+        if (idx >= 0 && idx < 12) {
+            expenses[idx] = parseFloat(item.total_expense);
+            incomes[idx] = parseFloat(item.total_income);
+        }
+    });
+
+    chartData.value.incomeExpenseTrend.series = [
+        { name: 'Total expense', data: expenses },
+        { name: 'Total income', data: incomes },
+    ];
+}, { immediate: true });
+
+watch(() => props.monthlyComparison, (newVal) => {
+    const data = Array.isArray(newVal) ? newVal : [];
+    const expenses = new Array(12).fill(0);
+    const incomes = new Array(12).fill(0);
+
+    data.forEach(item => {
+        const idx = item.month - 1;
+
+        if (idx >= 0 && idx < 12) {
+            expenses[idx] = parseFloat(item.total_expense);
+            incomes[idx] = parseFloat(item.total_income);
+        }
+    });
+
+    chartData.value.monthlyComparison.series = [
+        { name: 'Total expense', data: expenses },
+        { name: 'Total income', data: incomes },
+    ];
+}, { immediate: true });
+
+watch(() => props.budgetProgress, (newVal) => {
+    const data = Array.isArray(newVal) ? newVal : [];
+    const categories = data.map(item => item.category_name);
+    const percents = data.map(item => parseFloat(item.percent_used));
+    const totals = data.map(item => parseFloat(item.total_expense));
+    const maxAmounts = data.map(item => parseFloat(item.budget_amount));
+    const hasData = percents.length > 0 && percents.some(val => val > 0);
+
+    chartData.value.budgetProgress.series = hasData ? percents : [100];
+    chartData.value.budgetProgress.options = {
+        ...chartData.value.budgetProgress.options,
+        labels: hasData ? categories : ['No data'],
+        colors: hasData ? undefined : ['#e0e0e0'],
         tooltip: {
             enabled: hasData,
-        },
-        dataLabels: {
-            enabled: hasData,
-        },
-        responsive: [{
-            breakpoint: 480,
-            options: {
-                chart: { width: 200 },
-                legend: { position: 'bottom' }
-            }
-        }],
-        plotOptions: {
-            pie: {
-                expandOnClick: hasData,
+            theme: 'dark',
+            y: {
+                formatter: function (val, { seriesIndex }) {
+                    if (!hasData2) return '';
+                    const used = totals[seriesIndex]?.toLocaleString() || 0;
+                    const max = maxAmounts[seriesIndex]?.toLocaleString() || 0;
+                    return `${val}% used (${used} of ${max})`;
+                }
             },
-        },
-    },
-};
-
-const trend = Array.isArray(props.incomeExpenseTrend)
-    ? props.incomeExpenseTrend
-    : Object.values(props.incomeExpenseTrend);
-
-const expenses1 = new Array(12).fill(0);
-const incomes = new Array(12).fill(0);
-
-trend.forEach(item => {
-    const idx = item.month - 1;
-
-    if (idx >= 0 && idx < 12) {
-        expenses1[idx] = parseFloat(item.total_expense);
-        incomes[idx] = parseFloat(item.total_income);
-    }
-});
-
-const incomeExpenseTrend = {
-    series: [
-        {
-            name: "Total expense",
-            data: expenses1
-        },
-        {
-            name: "Total income",
-            data: incomes
-        }
-    ],
-    chartOptions: {
-        chart: {
-            height: 350,
-            type: 'line',
-            zoom: {
-                enabled: false
-            }
-        },
-        dataLabels: {
-            enabled: false
-        },
-        stroke: {
-            curve: 'straight'
-        },
-        title: {
-            text: 'Expenses & incomes by Month',
-            align: 'left'
-        },
-        grid: {
-            row: {
-                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                opacity: 0.5
-            },
-        },
-        xaxis: {
-            categories: [
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-            ],
-        }
-    },
-};
-
-const comparison = Array.isArray(props.monthlyComparison)
-    ? props.monthlyComparison
-    : Object.values(props.monthlyComparison);
-
-
-const expenses2 = new Array(12).fill(0);
-const incomes2 = new Array(12).fill(0);
-
-comparison.forEach(item => {
-    const idx = item.month - 1;
-
-    if (idx >= 0 && idx < 12) {
-        expenses2[idx] = parseFloat(item.total_expense);
-        incomes2[idx] = parseFloat(item.total_income);
-    }
-});
-
-const monthlyComparison = {
-    series: [
-        {
-            name: "Total expense",
-            data: expenses2
-        },
-        {
-            name: "Total income",
-            data: incomes2
-        }
-    ],
-    chartOptions: {
-        chart: {
-            type: 'bar',
-            height: 430
-        },
-        plotOptions: {
-            bar: {
-                horizontal: true,
-                dataLabels: {
-                    position: 'top',
-                },
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            offsetX: -12,
-            style: {
-                fontSize: '12px',
-                colors: ['#fff']
-            }
-        },
-        stroke: {
-            show: true,
-            width: 1,
-            colors: ['#fff']
-        },
-        tooltip: {
-            shared: true,
-            intersect: false
-        },
-        xaxis: {
-            categories: [
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-            ],
-        },
-    },
-};
-
-const progress = Array.isArray(props.budgetProgress)
-    ? props.budgetProgress
-    : Object.values(props.monthlyComparison);
-
-const categories = progress.map(item => item.category_name);
-const percents = progress.map(item => parseFloat(item.percent_used));
-const totals = progress.map(item => parseFloat(item.total_expense));
-const maxAmounts = progress.map(item => parseFloat(item.budget_amount));
-
-const hasData2 = percents.length > 0 && percents.some(val => val > 0);
-
-const budgetProgress = {
-    series: hasData2 ? percents : [100],
-    chartOptions: {
-        chart: {
-            height: 350,
-            type: 'radialBar',
-            background: 'transparent',
         },
         plotOptions: {
             radialBar: {
@@ -225,46 +132,22 @@ const budgetProgress = {
                     },
                     value: {
                         fontSize: '14px',
-                        formatter: val => hasData2 ? `${val}%` : ''
+                        formatter: val => hasData ? `${val}%` : ''
                     },
                     total: {
                         show: true,
-                        label: hasData2 ? 'Promedio' : 'Sin datos',
+                        label: hasData ? 'Average' : 'No data',
                         formatter: function () {
-                            if (!hasData2) return '';
+                            if (!hasData) return '';
                             const total = percents.reduce((acc, val) => acc + val, 0);
                             return (total / percents.length).toFixed(1) + "%";
-                        }
-                    }
-                }
-            }
+                        },
+                    },
+                },
+            },
         },
-        labels: hasData2 ? categories : ['Sin datos'],
-        colors: hasData2 ? undefined : ['#e0e0e0'],
-        legend: {
-            show: hasData2,
-            position: 'bottom',
-        },
-        tooltip: {
-            enabled: hasData2,
-            theme: 'dark',
-            y: {
-                formatter: function (val, { seriesIndex }) {
-                    if (!hasData2) return '';
-                    const used = totals[seriesIndex]?.toLocaleString() || 0;
-                    const max = maxAmounts[seriesIndex]?.toLocaleString() || 0;
-                    return `${val}% usado (${used} de ${max})`;
-                }
-            }
-        },
-    },
-};
-
-console.log('Totals: ', props.totals);
-console.log('expensesByCategory: ', props.expensesByCategory);
-console.log('incomeExpenseTrend: ', props.incomeExpenseTrend);
-console.log('monthlyComparison: ', props.monthlyComparison);
-console.log('budgetProgress: ', props.budgetProgress);
+    };
+}, { immediate: true });
 </script>
 
 <template>
@@ -283,21 +166,22 @@ console.log('budgetProgress: ', props.budgetProgress);
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                     <div class="card flex justify-center">
                         <div>
-                            <apexchart type="pie" width="380" :options="data.chartOptions" :series="data.series">
+                            <apexchart type="pie" width="380" :options="chartData.expensesByCategory.options"
+                                :series="chartData.expensesByCategory.series">
                             </apexchart>
-                            <p v-if="!hasData" class="mt-3 text-gray-500 text-sm italic">
-                                No hay gastos registrados aún 😅
+                            <p v-if="!hasExpensesData" class="mt-3 text-gray-500 text-sm italic">
+                                No data available
                             </p>
-                            <apexchart type="line" height="350" :options="incomeExpenseTrend.chartOptions"
-                                :series="incomeExpenseTrend.series"></apexchart>
-                            <apexchart type="bar" height="430" :options="monthlyComparison.chartOptions"
-                                :series="monthlyComparison.series"></apexchart>
-                            <apexchart type="radialBar" height="350" :options="budgetProgress.chartOptions"
-                                :series="budgetProgress.series">
+                            <apexchart type="line" height="350" :options="chartData.incomeExpenseTrend.options"
+                                :series="chartData.incomeExpenseTrend.series"></apexchart>
+                            <apexchart type="bar" height="430" :options="chartData.monthlyComparison.options"
+                                :series="chartData.monthlyComparison.series"></apexchart>
+                            <apexchart type="radialBar" height="350" :options="chartData.budgetProgress.options"
+                                :series="chartData.budgetProgress.series">
                             </apexchart>
-                            <p v-if="!hasData" class="mt-3 text-gray-500 text-sm italic">
-                                No hay presupuestos registrados aún 😅
-                            </p>
+                            <!-- <p v-if="!hasData" class="mt-3 text-gray-500 text-sm italic">
+                                No data available
+                            </p>  -->
                         </div>
                     </div>
                 </div>
