@@ -19,6 +19,9 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->middleware(['auth'])->name('dashboard.filter');
+Route::get('/dashboard/years', [DashboardController::class, 'years'])->middleware(['auth'])->name('dashboard.years');
+Route::get('/dashboard/months', [DashboardController::class, 'months'])->middleware(['auth'])->name('dashboard.months');
 
 Route::middleware('auth')->group(function () {
     // Categories
