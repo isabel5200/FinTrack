@@ -18,6 +18,10 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/test', function () {
+    return Inertia::render('Test');
+});
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->middleware(['auth'])->name('dashboard.filter');
 Route::get('/dashboard/years', [DashboardController::class, 'years'])->middleware(['auth'])->name('dashboard.years');

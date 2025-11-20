@@ -9,9 +9,14 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.vue',
     ],
-
+    darkMode: 'selector',
     theme: {
         extend: {
+            colors: {
+                dark: "#0d1117",
+                sidebar: "#0e0f1a",
+                neon: "#00eaff",
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },

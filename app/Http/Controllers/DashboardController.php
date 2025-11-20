@@ -44,7 +44,10 @@ class DashboardController extends Controller
                 'filters' => $filters,
             ]);
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'An error ocurred',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
