@@ -30,7 +30,3 @@ const { theme, setTheme } = useTheme();
         </div>
     </div>
 </template>
-
-<style scoped>
-/* Puedes personalizar más si quieres */
-</style>
