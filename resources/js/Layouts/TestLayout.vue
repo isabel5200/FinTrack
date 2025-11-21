@@ -11,19 +11,10 @@ const menu = [
 const isCollapsed = ref(false);
 const isMobileOpen = ref(false);
 
-// function toggleTheme() {
-//     const html = document.documentElement
-//     html.classList.toggle('dark');
-
-//     console.log('Cambiando');
-// }
-
 const toggleSidebar = () => {
     if (window.innerWidth < 768) {
-        // MODO MÓVIL → abrir/cerrar sidebar completo
         isMobileOpen.value = !isMobileOpen.value;
     } else {
-        // MODO DESKTOP → colapsar únicamente elementos
         isCollapsed.value = !isCollapsed.value;
     }
 };
@@ -34,13 +25,12 @@ const toggleSidebar = () => {
         <!-- Sidebar -->
         <aside class="bg-gray-100 dark:bg-[#0e0f1a] border-r border-gray-200 dark:border-[#1f2937]
            transition-all duration-300
-           fixed md:static h-full top-0 left-0 z-40
-           md:w-64" :class="{
-            'translate-x-0 w-64': isMobileOpen,
-            '-translate-x-full md:translate-x-0': !isMobileOpen,
-            'md:w-20': isCollapsed && !isMobileOpen,
-            'md:w-64': !isCollapsed && !isMobileOpen
-        }">
+           fixed md:static h-full top-0 left-0 z-40" :class="[
+            isMobileOpen
+                ? 'translate-x-0 w-64'
+                : '-translate-x-full md:translate-x-0',
+            isCollapsed && !isMobileOpen ? 'md:w-20' : 'md:w-64'
+        ]">
             <div class="p-4 text-xl font-bold text-gray-700 dark:text-neon transition-all"
                 :class="isCollapsed ? 'text-center' : ''">
                 {{ isCollapsed ? 'FT' : 'FinTrack' }}
@@ -76,7 +66,6 @@ const toggleSidebar = () => {
                         :class="{ 'rotate-180': isCollapsed }">
                     </i>
                 </button>
-
                 <!-- Botón móvil -->
                 <button @click="isMobileOpen = true" class="p-2 md:hidden">
                     <i class="fa-solid fa-bars text-xl"></i>
@@ -84,20 +73,9 @@ const toggleSidebar = () => {
                 <!-- Title -->
                 <h1 class="text-lg font-semibold">Dashboard</h1>
                 <!-- Dark mode and username -->
-                <div class="flex items-center gap-3">
-                    <!-- <span class="text-sm opacity-70"> -->
-                    <!-- <button @click="toggleTheme" class="px-3 py-1 rounded bg-gray-300 dark:bg-[#111827]">Cambiar
-                            tema</button> -->
-
-                    <!-- <select v-model="theme" @change="setTheme(theme)"
-                            class="px-10 py-1 rounded bg-gray-200 dark:bg-[#111827]">
-                            <option value="light">Claro</option>
-                            <option value="dark">Oscuro</option>
-                            <option value="system">Sistema</option>
-                        </select>
-                    </span> -->
+                <div class="flex items-center gap-4">
                     <ThemeToggleNeon />
-                    <span class="text-sm opacity-70">Hola, Isa</span>
+                    <span class="text-sm opacity-70">Isabel Lovera</span>
                     <div class="w-8 h-8 rounded-full bg-cyan-500"></div>
                 </div>
             </header>
