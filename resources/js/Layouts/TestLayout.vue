@@ -1,13 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import NavLink from '@/Components/NavLink.vue';
 import ThemeToggleNeon from '@/Components/ThemeToggleNeon.vue';
 
-const menu = [
-    { label: "Inicio", href: "#" },
-    { label: "Transacciones", href: "#" },
-    { label: "Presupuestos", href: "#" },
-    { label: "Reportes", href: "#" },
-];
 const isCollapsed = ref(false);
 const isMobileOpen = ref(false);
 
@@ -31,26 +28,42 @@ const toggleSidebar = () => {
                 : '-translate-x-full md:translate-x-0',
             isCollapsed && !isMobileOpen ? 'md:w-20' : 'md:w-64'
         ]">
-            <div class="p-4 text-xl font-bold text-gray-700 dark:text-neon transition-all"
-                :class="isCollapsed ? 'text-center' : ''">
-                {{ isCollapsed ? 'FT' : 'FinTrack' }}
+            <!-- Title -->
+            <div class="p-4 flex items-center gap-3 transition-all" :class="isCollapsed ? 'justify-center' : ''">
+                <!-- Logo -->
+                <Link :href="route('dashboard')">
+                <ApplicationLogo />
+                </Link>
+                <!-- FinTrack title -->
+                <span v-if="!isCollapsed" class="text-xl font-bold text-gray-700 dark:text-neon transition-all">
+                    FinTrack
+                </span>
             </div>
-            <!-- Navigation -->
+            <!-- Navigation links -->
             <nav class="p-3 space-y-1">
-                <a v-for="item in menu" :key="item.label" :href="item.href"
-                    class="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-200 dark:hover:bg-[#111827] transition duration-300">
-                    <!-- Iconito fake por ahora -->
-                    <div class="w-5 h-5 bg-neon rounded"></div>
-                    <!-- Ocultar texto si está colapsado -->
-                    <span class="whitespace-nowrap transition-all duration-300" :class="{
-                        'opacity-0 translate-x-[-10px] w-0': isCollapsed,
-                        'opacity-100 translate-x-[0px] w-auto': !isCollapsed
-                    }">
-                        {{ item.label }}
-                    </span>
-                </a>
+                <!-- Dashboard -->
+                <NavLink icon="fa-chart-line" :href="route('dashboard')" :active="route().current('dashboard')"
+                    :collapsed="isCollapsed">
+                    Dashboard
+                </NavLink>
+                <!-- Budgets -->
+                <NavLink icon="fa-wallet" :href="route('budgets.index')" :active="route().current('budgets.index')"
+                    :collapsed="isCollapsed">
+                    Budgets
+                </NavLink>
+                <!-- Categories -->
+                <NavLink icon="fa-tags" :href="route('categories.index')" :active="route().current('categories.index')"
+                    :collapsed="isCollapsed">
+                    Categories
+                </NavLink>
+                <!-- Transactions -->
+                <NavLink icon="fa-exchange-alt" :href="route('transactions.index')"
+                    :active="route().current('transactions.index')" :collapsed="isCollapsed">
+                    Transactions
+                </NavLink>
             </nav>
         </aside>
+        <!-- TODO -->
         <div v-if="isMobileOpen" @click="isMobileOpen = false" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden
            transition-opacity duration-300"></div>
         <div class="flex-1 flex flex-col transition-all duration-300">
