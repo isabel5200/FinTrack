@@ -137,8 +137,12 @@ onBeforeUnmount(() => {
                 <button @click="isMobileOpen = true" class="p-2 md:hidden">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
-                <!-- Page title -->
-                <h1 class="text-lg font-semibold">Dashboard</h1>
+                <!-- Page Heading -->
+                <header v-if="$slots.header">
+                    <div class="text-lg font-semibold">
+                        <slot name="header" />
+                    </div>
+                </header>
                 <!-- Right-side controls (theme switcher, username, avatar) -->
                 <div class="flex items-center gap-4">
                     <!-- Dark/light mode toggle -->
