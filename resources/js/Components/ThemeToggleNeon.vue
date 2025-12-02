@@ -56,7 +56,6 @@ const open = ref(false);
                 'fa-solid fa-desktop text-blue-400': theme === 'system',
                 'fa-solid fa-moon text-purple-400': theme === 'dark'
             }"></i>
-
             <i class="fa-solid fa-chevron-down text-sm transition" :class="{ 'rotate-180': open }"></i>
         </button>
         <!-- Floating list -->

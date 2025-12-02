@@ -1,17 +1,37 @@
 <script setup>
-import { onMounted, ref, watchEffect } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import Toast from 'primevue/toast';
+import { ref, onBeforeUnmount, onMounted, watchEffect } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import NavLink from '@/Components/NavLink.vue';
+import ThemeToggleNeon from '@/Components/ThemeToggleNeon.vue';
+import Toast from 'primevue/toast';
 
-const showingNavigationDropdown = ref(false);
 const toast = useToast();
+const isCollapsed = ref(false);
+const isMobileOpen = ref(false);
+const showingNavigationDropdown = ref(false);
+const dropdownRef = ref(null);
+
+// Toggles the sidebar differently depending on screen size:
+// - On mobile: opens/closes the full sidebar
+// - On desktop: collapses/expands the sidebar width
+const toggleSidebar = () => {
+    if (window.innerWidth < 768) {
+        isMobileOpen.value = !isMobileOpen.value;
+    } else {
+        isCollapsed.value = !isCollapsed.value;
+    }
+};
+
+// Closes the user dropdown when clicking outside of it
+// Checks if the click target is NOT inside the dropdown container
+const handleClickOutside = (e) => {
+    if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
+        showingNavigationDropdown.value = false;
+    }
+};
 
 // Display flash messages
 watchEffect(() => {
@@ -38,144 +58,139 @@ watchEffect(() => {
         usePage().props.flash.info = null;
     }
 })
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <template>
-    <div>
-        <Toast />
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
-                <!-- Primary Navigation Menu -->
-                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div class="flex h-16 justify-between">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
-                                <ApplicationLogo
-                                    class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+    <Toast />
+    <div class="h-screen flex bg-white text-gray-900 dark:bg-[#0d1117] dark:text-[#e4e8ff]">
+        <!-- Sidebar -->
+        <aside class="bg-gray-100 dark:bg-[#0e0f1a] border-r border-gray-200 dark:border-[#1f2937]
+           transition-all duration-300
+           fixed md:static h-full top-0 left-0 z-40" :class="[
+            isMobileOpen
+                ? 'translate-x-0 w-64'
+                : '-translate-x-full md:translate-x-0',
+            isCollapsed && !isMobileOpen ? 'md:w-20' : 'md:w-64'
+        ]">
+            <!-- Title -->
+            <div class="p-4 flex items-center gap-3 transition-all" :class="isCollapsed ? 'justify-center' : ''">
+                <!-- Logo -->
+                <Link :href="route('dashboard')">
+                <ApplicationLogo />
+                </Link>
+                <!-- FinTrack title -->
+                <span v-if="!isCollapsed" class="text-xl font-bold text-gray-700 dark:text-neon transition-all">
+                    FinTrack
+                </span>
+            </div>
+            <!-- Navigation links -->
+            <nav class="p-3 space-y-1">
+                <!-- Dashboard -->
+                <NavLink icon="fa-chart-line" :href="route('dashboard')" :active="route().current('dashboard')"
+                    :collapsed="isCollapsed">
+                    Dashboard
+                </NavLink>
+                <!-- Budgets -->
+                <NavLink icon="fa-wallet" :href="route('budgets.index')" :active="route().current('budgets.index')"
+                    :collapsed="isCollapsed">
+                    Budgets
+                </NavLink>
+                <!-- Categories -->
+                <NavLink icon="fa-tags" :href="route('categories.index')" :active="route().current('categories.index')"
+                    :collapsed="isCollapsed">
+                    Categories
+                </NavLink>
+                <!-- Transactions -->
+                <NavLink icon="fa-exchange-alt" :href="route('transactions.index')"
+                    :active="route().current('transactions.index')" :collapsed="isCollapsed">
+                    Transactions
+                </NavLink>
+            </nav>
+        </aside>
+        <!-- Mobile overlay (appears only when the sidebar is open on mobile) -->
+        <div v-if="isMobileOpen" @click="isMobileOpen = false" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden
+           transition-opacity duration-300">
+        </div>
+        <!-- Main content wrapper -->
+        <div class="flex-1 flex flex-col transition-all duration-300">
+            <!-- Header / Top navigation bar -->
+            <header class="h-16 flex items-center justify-between px-6
+        bg-gray-100 dark:bg-[#0e0f1a]
+        border-b border-gray-200 dark:border-[#1f2937]">
+                <!-- Sidebar toggle button (desktop only) -->
+                <button @click="toggleSidebar" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-[#111827]
+                   transition-all duration-300 md:inline-block hidden">
+                    <!-- Hamburger icon that rotates when collapsed -->
+                    <i class="fa-solid fa-bars text-xl transition-all duration-300"
+                        :class="{ 'rotate-180': isCollapsed }">
+                    </i>
+                </button>
+                <!-- Sidebar toggle button (mobile only) -->
+                <button @click="isMobileOpen = true" class="p-2 md:hidden">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <!-- Page title -->
+                <h1 class="text-lg font-semibold">Dashboard</h1>
+                <!-- Right-side controls (theme switcher, username, avatar) -->
+                <div class="flex items-center gap-4">
+                    <!-- Dark/light mode toggle -->
+                    <ThemeToggleNeon />
+                    <div class="flex justify-center items-center gap-2">
+                        <!-- Username -->
+                        <span class="text-sm opacity-70"> {{ $page.props.auth.user.name }}
+                        </span>
+                    </div>
+                    <!-- Profile settings container -->
+                    <div class="relative select-none" ref="dropdownRef">
+                        <!-- Avatar button -->
+                        <button @click.stop="showingNavigationDropdown = !showingNavigationDropdown"
+                            class="relative z-20 w-9 h-9 rounded-full bg-gray-200 text-gray-600 shadow-inner backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 active:scale-95 hover:ring-2 hover:ring-cyan-300/50">
+                            <i class="fa-solid fa-user text-lg"></i>
+                            <!-- Flechita -->
+                            <i class="fa-solid fa-chevron-down text-[10px] absolute -bottom-[3px] -right-[3px] bg-gray-300 rounded-full p-[2px] transition-transform"
+                                :class="{ 'rotate-180': showingNavigationDropdown }"></i>
+                        </button>
+                        <!-- Transition -->
+                        <transition enter-active-class="transition ease-out duration-150"
+                            enter-from-class="opacity-0 -translate-y-2 scale-95"
+                            enter-to-class="opacity-100 translate-y-0 scale-100"
+                            leave-active-class="transition ease-in duration-120"
+                            leave-from-class="opacity-100 translate-y-0 scale-100"
+                            leave-to-class="opacity-0 -translate-y-2 scale-95">
+                            <!-- Dropdown -->
+                            <div v-show="showingNavigationDropdown"
+                                class="absolute right-0 mt-2 w-40 rounded-xl bg-gray-200 dark:bg-[#0e0f1a] shadow-lg backdrop-blur-xl border border-white/10 overflow-hidden z-10">
+                                <!-- Profile -->
+                                <Link :href="route('profile.edit')">
+                                <button
+                                    class="flex items-center w-40 gap-2 px-4 py-2 hover:bg-white/40 dark:hover:bg-[#111827] transition">
+                                    Profile
+                                </button>
+                                </Link>
+                                <!-- Logout -->
+                                <Link :href="route('logout')" method="post" as="button">
+                                <button
+                                    class="flex items-center w-40 gap-2 px-4 py-2 hover:bg-white/40 dark:hover:bg-[#111827] transition">
+                                    Log out
+                                    <i class="fa-solid fa-arrow-right-from-bracket ml-auto opacity-80"></i>
+                                </button>
                                 </Link>
                             </div>
-                            <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
-                                </NavLink>
-                                <NavLink :href="route('budgets.index')" :active="route().current('budgets.index')">
-                                    Budgets
-                                </NavLink>
-                                <NavLink :href="route('categories.index')"
-                                    :active="route().current('categories.index')">
-                                    Categories
-                                </NavLink>
-                                <NavLink :href="route('transactions.index')"
-                                    :active="route().current('transactions.index')">
-                                    Transactions
-                                </NavLink>
-                            </div>
-                        </div>
-
-                        <div class="hidden sm:ms-6 sm:flex sm:items-center">
-                            <!-- Settings Dropdown -->
-                            <div class="relative ms-3">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button type="button"
-                                                class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300">
-                                                {{ $page.props.auth.user.name }}
-
-                                                <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
-
-                                    <template #content>
-                                        <DropdownLink :href="route('profile.edit')">
-                                            Profile
-                                        </DropdownLink>
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
-                                        </DropdownLink>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <!-- Hamburger -->
-                        <div class="-me-2 flex items-center sm:hidden">
-                            <button @click="
-                                showingNavigationDropdown =
-                                !showingNavigationDropdown
-                                "
-                                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none dark:text-gray-500 dark:hover:bg-gray-900 dark:hover:text-gray-400 dark:focus:bg-gray-900 dark:focus:text-gray-400">
-                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path :class="{
-                                        hidden: showingNavigationDropdown,
-                                        'inline-flex':
-                                            !showingNavigationDropdown,
-                                    }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16" />
-                                    <path :class="{
-                                        hidden: !showingNavigationDropdown,
-                                        'inline-flex':
-                                            showingNavigationDropdown,
-                                    }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+                        </transition>
                     </div>
-                </div>
-
-                <!-- Responsive Navigation Menu -->
-                <div :class="{
-                    block: showingNavigationDropdown,
-                    hidden: !showingNavigationDropdown,
-                }" class="sm:hidden">
-                    <div class="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <!-- Responsive Settings Options -->
-                    <div class="border-t border-gray-200 pb-1 pt-4 dark:border-gray-600">
-                        <div class="px-4">
-                            <div class="text-base font-medium text-gray-800 dark:text-gray-200">
-                                {{ $page.props.auth.user.name }}
-                            </div>
-                            <div class="text-sm font-medium text-gray-500">
-                                {{ $page.props.auth.user.email }}
-                            </div>
-                        </div>
-
-                        <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            <!-- Page Heading -->
-            <header class="bg-white shadow dark:bg-gray-800" v-if="$slots.header">
-                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    <slot name="header" />
                 </div>
             </header>
-
-            <!-- Page Content -->
-            <main>
+            <!-- Page content container -->
+            <main class="p-6">
+                <!-- Slot where each page injects its own content -->
                 <slot />
             </main>
         </div>
