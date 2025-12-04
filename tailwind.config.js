@@ -9,7 +9,7 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.vue',
     ],
-    darkMode: 'selector',
+    darkMode: ['class', '.dark'],
     theme: {
         extend: {
             keyframes: {
@@ -22,7 +22,7 @@ export default {
                 dropdown: 'dropdown 0.18s ease-out forwards',
             },
             colors: {
-                dark: "#0d1117",
+                dark: "#18181B",
                 sidebar: "#0e0f1a",
                 neon: "#00eaff",
             },

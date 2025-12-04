@@ -70,9 +70,9 @@ onBeforeUnmount(() => {
 
 <template>
     <Toast />
-    <div class="h-screen flex bg-white text-gray-900 dark:bg-[#0d1117] dark:text-[#e4e8ff]">
+    <div class="h-screen flex bg-white text-gray-900 dark:bg-dark dark:text-[#e4e8ff]">
         <!-- Sidebar -->
-        <aside class="bg-gray-100 dark:bg-[#0e0f1a] border-r border-gray-200 dark:border-[#1f2937]
+        <aside class="bg-gray-100 dark:bg-sidebar border-r border-gray-200 dark:border-[#1f2937]
            transition-all duration-300
            fixed md:static h-full top-0 left-0 z-40" :class="[
             isMobileOpen
@@ -120,11 +120,10 @@ onBeforeUnmount(() => {
            transition-opacity duration-300">
         </div>
         <!-- Main content wrapper -->
-        <div class="flex-1 flex flex-col transition-all duration-300">
+        <div class="flex-1 flex flex-col w-full transition-all duration-300">
             <!-- Header / Top navigation bar -->
-            <header class="h-16 flex items-center justify-between px-6
-        bg-gray-100 dark:bg-[#0e0f1a]
-        border-b border-gray-200 dark:border-[#1f2937]">
+            <header
+                class="h-16 flex items-center justify-between px-6 bg-gray-100 dark:bg-sidebar border-b border-gray-200 dark:border-[#1f2937]">
                 <!-- Sidebar toggle button (desktop only) -->
                 <button @click="toggleSidebar" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-[#111827]
                    transition-all duration-300 md:inline-block hidden">
@@ -193,7 +192,7 @@ onBeforeUnmount(() => {
                 </div>
             </header>
             <!-- Page content container -->
-            <main class="p-6">
+            <main>
                 <!-- Slot where each page injects its own content -->
                 <slot />
             </main>

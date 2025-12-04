@@ -10,6 +10,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 // PrimeVue
 import PrimeVue from 'primevue/config';
 import Material from '@primeuix/themes/material';
+import MyMaterial from './presets/MyMaterial';
 // Global Components
 import ConfirmDialog from 'primevue/confirmdialog';
 import ConfirmationService from 'primevue/confirmationservice';
@@ -34,10 +35,10 @@ createInertiaApp({
             .use(ZiggyVue)
             .use(PrimeVue, {
                 theme: {
-                    preset: Material,
+                    preset: MyMaterial,
                     options: {
                         prefix: 'p',
-                        darkModeSelector: 'system',
+                        darkModeSelector: '.dark',
                         cssLayer: false
                     }
                 },

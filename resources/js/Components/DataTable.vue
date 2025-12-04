@@ -113,7 +113,7 @@ initFilters();
 
 <template>
     <!-- DataTable -->
-    <DataTable removableSort paginator tableStyle="min-width: 50rem"
+    <DataTable removableSort paginator
         paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
         currentPageReportTemplate="{first} of {last} of {totalRecords}" v-model:filters="filters" :rows="rows"
         :rowsPerPageOptions="[5, 10, 20]" :totalRecords="totalRecords" :lazy="lazy" :value="data" class="text-nowrap"
@@ -121,7 +121,7 @@ initFilters();
         <!-- Table header -->
         <template #header>
             <!-- Add button -->
-            <Button raised rounded label="New" type="button" icon="fa-solid fa-circle-plus" severity="success"
+            <Button raised rounded label="New" type="button" icon="fa-solid fa-circle-plus" severity="primary"
                 @click="handleCreate" />
             <!-- Search -->
             <div class="flex justify-end mt-3">
