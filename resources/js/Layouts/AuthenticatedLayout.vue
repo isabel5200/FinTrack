@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 <!-- Page Heading -->
-                <header v-if="$slots.header">
+                <header v-if="$slots.header" class="mx-2">
                     <div class="text-lg font-semibold">
                         <slot name="header" />
                     </div>

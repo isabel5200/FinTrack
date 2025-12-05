@@ -491,12 +491,14 @@ onMounted(() => {
             </div>
         </Modal>
         <!-- Body -->
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+        <div class="py-5">
+            <div class="mx-auto sm:px-6 lg:px-8">
+                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-900">
                     <Card>
                         <!-- Title -->
-                        <template #title>Transactions</template>
+                        <template #title>
+                            <h1 class="font-bold text-4xl">Transactions</h1>
+                        </template>
                         <!-- Content -->
                         <template #content>
                             <!-- DataTable -->

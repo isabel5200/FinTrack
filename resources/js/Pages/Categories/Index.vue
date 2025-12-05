@@ -349,9 +349,9 @@ onMounted(() => {
             </div>
         </Modal>
         <!-- Body -->
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+        <div class="py-5">
+            <div class="mx-auto sm:px-6 lg:px-8">
+                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-900">
                     <!-- Old title
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         Your categories
@@ -359,7 +359,9 @@ onMounted(() => {
                     <!-- Card -->
                     <Card>
                         <!-- Title -->
-                        <template #title>Categories</template>
+                        <template #title>
+                            <h1 class="font-bold text-4xl">Categories</h1>
+                        </template>
                         <!-- Content -->
                         <template #content>
                             <!-- DataTable -->

@@ -44,7 +44,7 @@ const open = ref(false);
         </div>
     </div>
     <!-- Dropdown mobile -->
-    <div class="relative block md:hidden select-none">
+    <div class="relative block md:hidden select-none z-10">
         <!-- Open/Close button -->
         <button @click="open = !open" class="flex items-center gap-2 px-4 py-2 rounded-xl
                    bg-gray-300 dark:bg-[#111827]
