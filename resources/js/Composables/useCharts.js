@@ -6,7 +6,6 @@ export function useCharts() {
             series: [],
             options: {
                 chart: {
-                    width: 380,
                     type: 'pie',
                     background: 'transparent'
                 },
@@ -16,6 +15,7 @@ export function useCharts() {
                 tooltip: { enabled: false },
                 dataLabels: { enabled: false },
                 plotOptions: { pie: { expandOnClick: false } },
+                theme: { mode: 'light' },
             },
         },
         incomeExpenseTrend: {
@@ -25,7 +25,6 @@ export function useCharts() {
             ],
             options: {
                 chart: {
-                    height: 350,
                     type: 'line',
                     zoom: { enabled: false }
                 },
@@ -47,6 +46,7 @@ export function useCharts() {
                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
                     ],
                 },
+                theme: { mode: 'light' },
             },
         },
         monthlyComparison: {
@@ -55,7 +55,7 @@ export function useCharts() {
                 { name: 'Total income', data: [] },
             ],
             options: {
-                chart: { type: 'bar', height: 430 },
+                chart: { type: 'bar' },
                 plotOptions: {
                     bar: {
                         horizontal: true,
@@ -78,13 +78,13 @@ export function useCharts() {
                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
                     ],
                 },
+                theme: { mode: 'light' },
             },
         },
         budgetProgress: {
             series: [100],
             options: {
                 chart: {
-                    height: 350,
                     type: 'radialBar',
                     background: 'transparent'
                 },
@@ -104,6 +104,7 @@ export function useCharts() {
                 labels: ['No data'],
                 colors: ['#e0e0e0'],
                 tooltip: { enabled: false },
+                theme: { mode: 'light' },
             },
         },
     });

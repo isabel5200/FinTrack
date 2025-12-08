@@ -1,15 +1,17 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import { useCharts } from '@/Composables/useCharts';
-import { onMounted, ref, watch } from 'vue';
+import { nextTick, onMounted, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Card from 'primevue/card';
 import InputLabel from '@/Components/InputLabel.vue';
 import Select from 'primevue/select';
 import Skeleton from 'primevue/skeleton';
 import useDashboardFilters from '@/Composables/useDashboardFilters';
+import useTheme from '@/Composables/useTheme';
 import VueApexCharts from "vue3-apexcharts";
 
+const { isDark } = useTheme();
 const { chartData } = useCharts();
 const apexchart = VueApexCharts;
 const { filters, setFilter, getQueryParams } = useDashboardFilters();
@@ -23,6 +25,8 @@ const hasExpensesData = ref(false);
 const years = ref([]);
 const months = ref([]);
 const isLoadingCharts = ref(false);
+const isLoadingYears = ref(false);
+const isLoadingMonths = ref(false);
 
 const getDashboardData = async () => {
     try {
@@ -50,6 +54,8 @@ const getDashboardData = async () => {
 };
 
 const getYears = async () => {
+    isLoadingYears.value = true;
+
     try {
         const response = await axios.get(route('dashboard.years'));
 
@@ -64,10 +70,14 @@ const getYears = async () => {
         });
 
         console.error(error);
+    } finally {
+        isLoadingYears.value = false;
     }
 };
 
 const getMonths = async () => {
+    isLoadingMonths.value = true;
+
     try {
         const response = await axios.get(route('dashboard.months'), {
             params: { year: filters.year }
@@ -88,23 +98,42 @@ const getMonths = async () => {
 
         console.error(error);
     }
+    finally {
+        isLoadingMonths.value = false;
+    }
 };
 
 onMounted(async () => {
     await getYears();
     await getMonths();
     await getDashboardData();
+
+    nextTick(() => {
+        window.dispatchEvent(new Event("resize"));
+    });
+});
+watch(() => isDark.value, () => {
+    expensesByCategory.value = [...expensesByCategory.value];
+    incomeExpenseTrend.value = [...incomeExpenseTrend.value];
+    monthlyComparison.value = [...monthlyComparison.value];
+    budgetProgress.value = [...budgetProgress.value];
 });
 
 watch(() => filters.year, async () => {
     await getMonths();
     await getDashboardData();
-
-    console.log('Entrando al watcher de años');
 });
 
 watch(() => filters.month, () => {
     getDashboardData();
+});
+
+watch(isLoadingCharts, (value) => {
+    if (!value) {
+        nextTick(() => {
+            window.dispatchEvent(new Event("resize"));
+        });
+    }
 });
 
 // watch(filters, async () => {
@@ -134,6 +163,7 @@ watch(() => expensesByCategory.value, (newVal) => {
         legend: { show: hasData },
         dataLabels: { enabled: hasData },
         plotOptions: { pie: { expandOnClick: hasData } },
+        theme: { mode: isDark.value ? 'dark' : 'light' },
     };
 }, { immediate: true });
 
@@ -155,6 +185,10 @@ watch(() => incomeExpenseTrend.value, (newVal) => {
         { name: 'Total expense', data: expenses },
         { name: 'Total income', data: incomes },
     ];
+    chartData.value.incomeExpenseTrend.options = {
+        ...chartData.value.incomeExpenseTrend.options,
+        theme: { mode: isDark.value ? 'dark' : 'light' },
+    };
 }, { immediate: true });
 
 watch(() => monthlyComparison.value, (newVal) => {
@@ -175,6 +209,10 @@ watch(() => monthlyComparison.value, (newVal) => {
         { name: 'Total expense', data: expenses },
         { name: 'Total income', data: incomes },
     ];
+    chartData.value.monthlyComparison.options = {
+        ...chartData.value.monthlyComparison.options,
+        theme: { mode: isDark.value ? 'dark' : 'light' },
+    };
 }, { immediate: true });
 
 watch(() => budgetProgress.value, (newVal) => {
@@ -224,6 +262,7 @@ watch(() => budgetProgress.value, (newVal) => {
                 },
             },
         },
+        theme: { mode: isDark.value ? 'dark' : 'light' },
     };
 }, { immediate: true });
 
@@ -251,8 +290,8 @@ watch(() => budgetProgress.value, (newVal) => {
             </h2>
         </template>
         <!-- Body -->
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="py-5">
+            <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                     <Card>
                         <!-- Title -->
@@ -260,19 +299,25 @@ watch(() => budgetProgress.value, (newVal) => {
                         <!-- Content -->
                         <template #content>
                             <!-- Filters -->
-
-                            <!-- Years -->
-                            <InputLabel for="year" value="year" />
-                            <Select id="year" v-model="filters.year" :options="years" optionValue="id"
-                                optionLabel="name" placeholder="Select a year" class="mt-1 block w-full"
-                                appendTo="self" />
-                            <!-- Months -->
-                            <InputLabel for="month" value="month" />
-                            <Select id="month" v-model="filters.month" :options="months" optionValue="id"
-                                optionLabel="name" placeholder="Select a month" class="mt-1 block w-full"
-                                appendTo="self" />
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <!-- Year -->
+                                <div>
+                                    <InputLabel for="year" value="Year" />
+                                    <Select id="year" v-model="filters.year" :options="years" :loading="isLoadingYears"
+                                        :disabled="isLoadingYears" optionValue="id" optionLabel="name"
+                                        placeholder="Select a year" class="mt-1 block w-full" appendTo="self" />
+                                </div>
+                                <!-- Month -->
+                                <div>
+                                    <InputLabel for="month" value="Month" />
+                                    <Select id="month" v-model="filters.month" :options="months"
+                                        :loading="isLoadingMonths" :disabled="isLoadingMonths" optionValue="id"
+                                        optionLabel="name" placeholder="Select a month" class="mt-1 block w-full"
+                                        appendTo="self" />
+                                </div>
+                            </div>
                             <!-- Skeletons -->
-                            <div v-if="isLoadingCharts" class="mt-6 space-y-6">
+                            <div v-if="isLoadingCharts" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <!-- Pie chart skeleton -->
                                 <div class="flex justify-center">
                                     <Skeleton shape="circle" width="200px" height="200px" />
@@ -287,23 +332,39 @@ watch(() => budgetProgress.value, (newVal) => {
                                 </div>
                             </div>
                             <!-- Charts -->
-                            <div v-else>
+                            <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <!-- Pie chart -->
-                                <apexchart type="pie" width="380" :options="chartData.expensesByCategory.options"
-                                    :series="chartData.expensesByCategory.series" />
-                                <!-- Legend if there is no data -->
-                                <p v-if="!hasExpensesData" class="mt-3 text-gray-500 text-sm italic">
-                                    No data available
-                                </p>
+                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 shadow-sm">
+                                    <h3 class="text-lg font-semibold mb-3">Expenses by Category</h3>
+
+                                    <apexchart type="pie" :options="chartData.expensesByCategory.options"
+                                        :series="chartData.expensesByCategory.series" />
+
+                                    <p v-if="!hasExpensesData" class="mt-3 text-gray-500 text-sm italic text-center">
+                                        No data available
+                                    </p>
+                                </div>
                                 <!-- Line chart -->
-                                <apexchart type="line" height="350" :options="chartData.incomeExpenseTrend.options"
-                                    :series="chartData.incomeExpenseTrend.series" />
+                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 shadow-sm">
+                                    <h3 class="text-lg font-semibold mb-3">Income vs Expenses Trend</h3>
+
+                                    <apexchart type="line" :options="chartData.incomeExpenseTrend.options"
+                                        :series="chartData.incomeExpenseTrend.series" />
+                                </div>
                                 <!-- Bar chart -->
-                                <apexchart type="bar" height="430" :options="chartData.monthlyComparison.options"
-                                    :series="chartData.monthlyComparison.series" />
+                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 shadow-sm">
+                                    <h3 class="text-lg font-semibold mb-3">Monthly Comparison</h3>
+
+                                    <apexchart type="bar" :options="chartData.monthlyComparison.options"
+                                        :series="chartData.monthlyComparison.series" />
+                                </div>
                                 <!-- Radial chart -->
-                                <apexchart type="radialBar" height="350" :options="chartData.budgetProgress.options"
-                                    :series="chartData.budgetProgress.series" />
+                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 shadow-sm">
+                                    <h3 class="text-lg font-semibold mb-3">Budget Progress</h3>
+
+                                    <apexchart type="radialBar" :options="chartData.budgetProgress.options"
+                                        :series="chartData.budgetProgress.series" />
+                                </div>
                             </div>
                         </template>
                     </Card>
