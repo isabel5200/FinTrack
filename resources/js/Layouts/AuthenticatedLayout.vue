@@ -70,16 +70,17 @@ onBeforeUnmount(() => {
 
 <template>
     <Toast />
-    <div class="h-screen flex bg-white text-gray-900 dark:bg-dark dark:text-[#e4e8ff]">
+    <div class="min-h-screen flex bg-white text-gray-900 dark:bg-dark dark:text-[#e4e8ff]">
         <!-- Sidebar -->
         <aside class="bg-gray-100 dark:bg-sidebar border-r border-gray-200 dark:border-[#1f2937]
-           transition-all duration-300
-           fixed md:static h-full top-0 left-0 z-40" :class="[
-            isMobileOpen
-                ? 'translate-x-0 w-64'
-                : '-translate-x-full md:translate-x-0',
-            isCollapsed && !isMobileOpen ? 'md:w-20' : 'md:w-64'
-        ]">
+               transition-all duration-300
+               fixed md:static top-0 left-0 z-40
+               min-h-screen" :class="[
+                isMobileOpen
+                    ? 'translate-x-0 w-64'
+                    : '-translate-x-full md:translate-x-0',
+                isCollapsed && !isMobileOpen ? 'md:w-20' : 'md:w-64'
+            ]">
             <!-- Title -->
             <div class="p-4 flex items-center gap-3 transition-all" :class="isCollapsed ? 'justify-center' : ''">
                 <!-- Logo -->
@@ -117,7 +118,7 @@ onBeforeUnmount(() => {
         </aside>
         <!-- Mobile overlay (appears only when the sidebar is open on mobile) -->
         <div v-if="isMobileOpen" @click="isMobileOpen = false" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden
-           transition-opacity duration-300">
+               transition-opacity duration-300">
         </div>
         <!-- Main content wrapper -->
         <div class="flex-1 flex flex-col w-full transition-all duration-300">
@@ -126,7 +127,7 @@ onBeforeUnmount(() => {
                 class="h-16 flex items-center justify-between px-6 bg-gray-100 dark:bg-sidebar border-b border-gray-200 dark:border-[#1f2937]">
                 <!-- Sidebar toggle button (desktop only) -->
                 <button @click="toggleSidebar" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-[#111827]
-                   transition-all duration-300 md:inline-block hidden">
+                       transition-all duration-300 md:inline-block hidden">
                     <!-- Hamburger icon that rotates when collapsed -->
                     <i class="fa-solid fa-bars text-xl transition-all duration-300"
                         :class="{ 'rotate-180': isCollapsed }">
