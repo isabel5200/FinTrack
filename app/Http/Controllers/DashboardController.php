@@ -90,7 +90,10 @@ class DashboardController extends Controller
 
     private function getTotals($userId, $filters = [])
     {
-        $query = Transaction::where('user_id', $userId);
+        $query = Transaction::selectRaw("
+        SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
+        SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
+    ")->where('user_id', $userId);
 
         if (!empty($filters['year'])) {
             $query->whereYear('date', $filters['year']);
@@ -100,13 +103,12 @@ class DashboardController extends Controller
             $query->whereMonth('date', $filters['month']);
         }
 
-        $income = $query->where('type', 'income')->sum('amount');
-        $expense = $query->where('type', 'expense')->sum('amount');
+        $totals = $query->first();
 
         return [
-            'income' => (float) $income,
-            'expense' => (float) $expense,
-            'balance' => (float) ($income - $expense),
+            'income' => (float) $totals->income,
+            'expense' => (float) $totals->expense,
+            'balance' => (float) ($totals->income - $totals->expense),
         ];
     }
 

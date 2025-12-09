@@ -1,6 +1,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import preview from '@/assets/dashboard-preview.png';
 
 defineProps({
     canLogin: {
@@ -91,10 +92,10 @@ const currentYear = new Date().getFullYear();
                     <!-- Preview placeholder -->
                     <div class="md:col-span-6">
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
-                            <p class="text-center text-sm text-gray-500 mb-3">Dashboard Preview</p>
-                            <div
-                                class="aspect-video w-full bg-gray-800 rounded-lg flex items-center justify-center text-gray-500">
-                                (Static Preview Image Placeholder)
+                            <p class="text-center text-sm text-gray-500 mb-3">Dashboard</p>
+
+                            <div class="p-3 bg-gray-800 rounded-lg overflow-hidden shadow-inner">
+                                <img :src="preview" alt="Dashboard preview" class="w-full rounded-lg object-cover" />
                             </div>
                         </div>
                     </div>

@@ -1,7 +1,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import { useCharts } from '@/Composables/useCharts';
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Card from 'primevue/card';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -14,9 +14,13 @@ import VueApexCharts from "vue3-apexcharts";
 const { isDark } = useTheme();
 const { chartData } = useCharts();
 const apexchart = VueApexCharts;
-const { filters, setFilter, getQueryParams } = useDashboardFilters();
+const { filters, getQueryParams } = useDashboardFilters();
 
-const totals = ref([]);
+const totals = ref({
+    income: 0,
+    expense: 0,
+    balance: 0,
+});
 const expensesByCategory = ref([]);
 const incomeExpenseTrend = ref([]);
 const monthlyComparison = ref([]);
@@ -24,6 +28,7 @@ const budgetProgress = ref([]);
 const hasExpensesData = ref(false);
 const years = ref([]);
 const months = ref([]);
+const initializing = ref(true);
 const isLoadingCharts = ref(false);
 const isLoadingYears = ref(false);
 const isLoadingMonths = ref(false);
@@ -104,14 +109,16 @@ const getMonths = async () => {
 };
 
 onMounted(async () => {
+    initializing.value = true;
+
     await getYears();
     await getMonths();
-    await getDashboardData();
 
-    nextTick(() => {
-        window.dispatchEvent(new Event("resize"));
-    });
+    initializing.value = false;
+
+    await getDashboardData();
 });
+
 watch(() => isDark.value, () => {
     expensesByCategory.value = [...expensesByCategory.value];
     incomeExpenseTrend.value = [...incomeExpenseTrend.value];
@@ -120,20 +127,16 @@ watch(() => isDark.value, () => {
 });
 
 watch(() => filters.year, async () => {
+    if (initializing.value) return;
+
     await getMonths();
     await getDashboardData();
 });
 
 watch(() => filters.month, () => {
-    getDashboardData();
-});
+    if (initializing.value) return;
 
-watch(isLoadingCharts, (value) => {
-    if (!value) {
-        nextTick(() => {
-            window.dispatchEvent(new Event("resize"));
-        });
-    }
+    getDashboardData();
 });
 
 // watch(filters, async () => {
@@ -316,6 +319,34 @@ watch(() => budgetProgress.value, (newVal) => {
                                         appendTo="self" />
                                 </div>
                             </div>
+                            <!-- Cards -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <!-- Income -->
+                                <div
+                                    class="p-4 rounded-xl shadow-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Income</p>
+                                    <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
+                                        ${{ totals.income.toLocaleString() }}
+                                    </p>
+                                </div>
+                                <!-- Expense -->
+                                <div
+                                    class="p-4 rounded-xl shadow-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Expense</p>
+                                    <p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">
+                                        ${{ totals.expense.toLocaleString() }}
+                                    </p>
+                                </div>
+                                <!-- Balance -->
+                                <div
+                                    class="p-4 rounded-xl shadow-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Balance</p>
+                                    <p class="text-2xl font-bold mt-1"
+                                        :class="totals.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+                                        ${{ totals.balance.toLocaleString() }}
+                                    </p>
+                                </div>
+                            </div>
                             <!-- Skeletons -->
                             <div v-if="isLoadingCharts" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <!-- Pie chart skeleton -->
@@ -334,7 +365,8 @@ watch(() => budgetProgress.value, (newVal) => {
                             <!-- Charts -->
                             <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <!-- Pie chart -->
-                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 shadow-sm">
+                                <div
+                                    class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
                                     <h3 class="text-lg font-semibold mb-3">Expenses by Category</h3>
 
                                     <apexchart type="pie" :options="chartData.expensesByCategory.options"
@@ -345,21 +377,24 @@ watch(() => budgetProgress.value, (newVal) => {
                                     </p>
                                 </div>
                                 <!-- Line chart -->
-                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 shadow-sm">
+                                <div
+                                    class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
                                     <h3 class="text-lg font-semibold mb-3">Income vs Expenses Trend</h3>
 
                                     <apexchart type="line" :options="chartData.incomeExpenseTrend.options"
                                         :series="chartData.incomeExpenseTrend.series" />
                                 </div>
                                 <!-- Bar chart -->
-                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 shadow-sm">
+                                <div
+                                    class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
                                     <h3 class="text-lg font-semibold mb-3">Monthly Comparison</h3>
 
                                     <apexchart type="bar" :options="chartData.monthlyComparison.options"
                                         :series="chartData.monthlyComparison.series" />
                                 </div>
                                 <!-- Radial chart -->
-                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 shadow-sm">
+                                <div
+                                    class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
                                     <h3 class="text-lg font-semibold mb-3">Budget Progress</h3>
 
                                     <apexchart type="radialBar" :options="chartData.budgetProgress.options"

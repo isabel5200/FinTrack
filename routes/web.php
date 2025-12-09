@@ -16,12 +16,13 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
-Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->middleware(['auth'])->name('dashboard.filter');
-Route::get('/dashboard/years', [DashboardController::class, 'years'])->middleware(['auth'])->name('dashboard.years');
-Route::get('/dashboard/months', [DashboardController::class, 'months'])->middleware(['auth'])->name('dashboard.months');
-
 Route::middleware('auth')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
+    Route::get('/dashboard/years', [DashboardController::class, 'years'])->name('dashboard.years');
+    Route::get('/dashboard/months', [DashboardController::class, 'months'])->name('dashboard.months');
+
     // Categories
     Route::resource('/categories', CategoryController::class);
     Route::get('/get-categories', [CategoryController::class, 'getCategories'])->name('categories.getCategories');
