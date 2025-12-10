@@ -21,6 +21,7 @@ class DashboardController extends Controller
         }
     }
 
+    // Get filtered dashboard data
     public function filter(Request $request)
     {
         $userId = Auth::id();

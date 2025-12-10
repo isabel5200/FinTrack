@@ -1,3 +1,5 @@
+// Dashboard filters composable for managing filter state and query parameters
+
 import { reactive } from 'vue';
 
 export default function useDashboardFilters() {

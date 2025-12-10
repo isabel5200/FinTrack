@@ -1,4 +1,5 @@
 <script setup>
+import { Head } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import preview from '@/assets/dashboard-preview.png';
@@ -16,6 +17,9 @@ const currentYear = new Date().getFullYear();
 </script>
 
 <template>
+
+    <Head title="Home" />
+
     <main class="min-h-screen  bg-gray-950 text-gray-100 flex flex-col">
         <div class="flex-grow">
             <!-- Header -->

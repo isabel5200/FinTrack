@@ -1,6 +1,6 @@
 <script setup>
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -210,9 +210,6 @@ const deleteBudget = async (id) => {
         visible.value = false;
     }
 };
-
-onMounted(() => {
-});
 </script>
 
 <template>

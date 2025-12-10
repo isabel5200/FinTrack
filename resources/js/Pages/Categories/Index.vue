@@ -1,6 +1,6 @@
 <script setup>
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -123,14 +123,6 @@ const getCategoryForEdit = async (id) => {
     }
 };
 
-const checkHasBudgets = () => {
-    if (hasBudgets.value) {
-        return
-    } else {
-        form.errors.type = null;
-    }
-}
-
 const updateCategory = () => {
     form.errors = {};
 
@@ -220,10 +212,6 @@ const deleteCategory = async (id) => {
         visible.value = false;
     }
 };
-
-// Vue methods
-onMounted(() => {
-});
 </script>
 
 <template>

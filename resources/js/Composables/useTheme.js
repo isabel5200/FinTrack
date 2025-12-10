@@ -1,4 +1,6 @@
+// Theme composable for managing application theme (light, dark, system)
 import { ref, onMounted } from 'vue';
+
 const theme = ref(localStorage.getItem("theme") || "system");
 const isDark = ref(false);
 let initialized = false;

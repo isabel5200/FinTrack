@@ -1,3 +1,4 @@
+// Charts composable for managing chart data and configurations
 import { ref } from 'vue';
 
 export function useCharts() {

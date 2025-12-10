@@ -1,6 +1,6 @@
 <script setup>
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -261,10 +261,6 @@ const removeAttachment = () => {
     attachmentRemoved.value = true;
     form.current_attachment = null;
 };
-
-// Vue methods
-onMounted(() => {
-});
 </script>
 
 <template>
