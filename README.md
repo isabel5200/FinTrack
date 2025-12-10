@@ -45,41 +45,42 @@ FinTrack is a lightweight personal finance management application that helps use
 ```sh
 git clone https://github.com/isabel5200/FinTrack
 cd FinTrack
+```
 
-# Backend setup
-    ````sh 
-    composer install
-    cp .env.example .env
-    php artisan key:generate
-    ````
+### Backend setup
+````sh 
+composer install
+cp .env.example .env
+php artisan key:generate
+````
 
 Configure your .env:
-    ````sh 
-    DB_DATABASE=fintrack
-    DB_USERNAME=your_user
-    DB_PASSWORD=your_password
-    ````
+````sh 
+DB_DATABASE=fintrack
+DB_USERNAME=your_user
+DB_PASSWORD=your_password
+````
 
 Run migrations:
-    ````sh 
-    php artisan migrate
-    ````
+````sh 
+php artisan migrate
+````
 
 (Optional seed):
-    ````sh 
-    php artisan db:seed
-    ````
+````sh 
+php artisan db:seed
+````
 
 Start the backend server:
-    ````sh 
-    php artisan serve
-    ````
+````sh 
+php artisan serve
+````
 
-# Frontend setup
-    ````sh 
-    npm install
-    npm run dev
-    ````
+### Frontend setup
+````sh 
+npm install
+npm run dev
+````
 
 ## 📂 Project Structure
 - app/ Core backend logic
