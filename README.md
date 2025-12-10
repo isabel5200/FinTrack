@@ -17,15 +17,15 @@ FinTrack is a lightweight personal finance management application that helps use
 
 ### Backend
 - 🐘 PHP 8.4.5
-- 🧱 Laravel
+- 🧱 <a href="#">Laravel</a>
 - 📦 Composer 2.8.6
 - 🗄️ MySQL 8.0
 
 ### Frontend
-- 🌿 Vue
-- 🔗 Inertia.js
-- 💠 PrimeVue 4.0
-- 🎨 Tailwind CSS 4.0.14
+- 🌿 <a href="https://vuejs.org/">Vue</a>
+- 🔗 <a href="https://inertiajs.com/">Inertia.js</a>
+- 💠 <a href="https://primevue.org/">PrimeVue 4.0</a>
+- 🎨 <a href="https://tailwindcss.com/">Tailwind CSS 4.0.14</a>
 - 📡 Axios
 - 🟢 Node 22.14
 - 🔵 npm 10.8.3
