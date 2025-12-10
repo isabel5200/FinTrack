@@ -1,4 +1,4 @@
-## FinTrack
+# FinTrack
 
 ## ✨ Personal Finance Tracker
 FinTrack is a lightweight personal finance management application that helps users track transactions, organize categories, and manage monthly budgets with clarity and efficiency. Built with a clean structure and modern stack, the project serves as a solid foundation for learning or expanding financial tools.
@@ -15,13 +15,13 @@ FinTrack is a lightweight personal finance management application that helps use
 
 ## 🛠️ Tech Stack
 
-# Backend
+### Backend
 - 🐘 PHP 8.4.5
 - 🧱 Laravel
 - 📦 Composer 2.8.6
 - 🗄️ MySQL 8.0
 
-# Frontend
+### Frontend
 - 🌿 Vue
 - 🔗 Inertia.js
 - 💠 PrimeVue 4.0
@@ -30,7 +30,7 @@ FinTrack is a lightweight personal finance management application that helps use
 - 🟢 Node 22.14
 - 🔵 npm 10.8.3
 
-# Other
+### Other
 - 🧭 Git version control
 
 ## 📋 Requirements
@@ -41,9 +41,10 @@ FinTrack is a lightweight personal finance management application that helps use
 - MySQL 8+
 
 ## ⚙️ Installation
-    ````sh 
-    git clone https://github.com/isabel5200/FinTrack
-    ````
+
+```sh
+git clone https://github.com/isabel5200/FinTrack
+cd FinTrack
 
 # Backend setup
     ````sh 
