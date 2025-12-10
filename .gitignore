@@ -24,3 +24,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+"/resources/js/Pages/Welcome copy.vue"
+"/resources/js/AuthenticatedLayout copy.vue"
+/resources/js/Layouts/TestLayout.vue
