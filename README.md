@@ -17,7 +17,7 @@ FinTrack is a lightweight personal finance management application that helps use
 
 ### Backend
 - 🐘 PHP 8.4.5
-- 🧱 <a href="#">Laravel</a>
+- 🧱 <a href="https://laravel.com/">Laravel</a>
 - 📦 Composer 2.8.6
 - 🗄️ MySQL 8.0
 
